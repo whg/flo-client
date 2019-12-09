@@ -1,0 +1,39 @@
+
+input, select, button {
+  margin: 0 2px;
+  height: 28px !important;
+  padding: 0;
+  padding-left: 5px;
+  line-height: unset;
+}
+
+select {
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+   background: url(/img/down-arrow.png) right / 20px no-repeat #fff;
+   padding-right: 20px;
+}
+
+button[disabled="disabled"] {
+  opacity: 0.3;
+  &:hover {
+    border-color: #bbb;
+    color: #555;
+    cursor: not-allowed;
+  }
+}
+
+button {
+  padding: 0 20px;
+}
+
+tt {
+  font-family: Courier !important;
+}
+
+a {
+  &:hover {
+    cursor: pointer;
+  }
+}
