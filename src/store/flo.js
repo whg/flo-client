@@ -2,7 +2,7 @@ import socketio from 'socket.io-client'
 import { camelToKebab, vocabMap } from '../util'
 
 export const socketPlugin = ((socket) => {
-  const prefix = 'socket'
+  const prefix = 'flo/socket'
   const prefixRegex = new RegExp(prefix)
   const extract = name => camelToKebab(name.slice(prefix.length))
 
@@ -29,6 +29,9 @@ export const socketPlugin = ((socket) => {
 export const flo = {
   namespaced: true,
   state: {
+    components: [],
+    sequences: {},
+    instances: {},
     fead: {
       responses: [],
       online: [],
@@ -39,8 +42,13 @@ export const flo = {
     socketConnect(state) {
       console.log('connect')
     },
-    socketGo(state, message) {
-      console.log('gooo', message)
+    socketSequences(state, sequences) {
+      state.sequences = sequences
+      console.log('sequences', sequences)
+    },
+    socketInstances(state, instances) {
+      state.instances = instances
+      console.log(instances)
     },
     socketFeadRequest(state, payload) {
       const r = payload.request
@@ -66,10 +74,14 @@ export const flo = {
     socketTest({ commit }, payload) {
       console.log('calling with', payload)
     },
-    socketFeadRequest() {},
+    socketSequences() {
+    },
+    socketFeadRequest() {
+    },
     socketFeadOnline({ state }) {
       state.fead.requestingOnline = true
     },
-    socketPod() {}
+    socketPod() {
+    }
   }
 }

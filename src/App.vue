@@ -1,8 +1,8 @@
 <template>
-<div id="app">
-  <div id="nav">
+<div id="app" @click="clicked">
+  <!-- <div id="nav"> -->
     <!-- <router-link to="/">Home</router-link> | -->
-  </div>
+  <!-- </div> -->
   <router-view/>
 </div>
 </template>
@@ -13,7 +13,21 @@ import '@/styles/skeleton.css'
 import '@/styles/main.scss'
 
 export default {
-  name: 'app'
+  name: 'app',
+  methods: {
+    clicked(e) {
+      let target = e.target
+      for (var i = 0; i < 5; i++) {
+        if (!target) {
+          break
+        } else if (target.classList.contains('handle')) {
+          return
+        }
+        target = target.parentElement
+      }
+      this.$store.state.selectedElement = null
+    }
+  }
 }
 </script>
 

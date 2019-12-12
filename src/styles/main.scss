@@ -37,3 +37,18 @@ a {
     cursor: pointer;
   }
 }
+
+.link {
+  &:hover {
+    cursor: pointer !important;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 0;
+}
+h3 {
+  font-size: 1.6rem;
+  color: #777;
+}

@@ -1,6 +1,6 @@
 <template lang="html">
 <div class="fead">
-  <h2><tt>fead</tt> console</h2>
+  <h2><tt>fead</tt>Console</h2>
   <p>
     <spinner v-if="requestingOnline"/>
     <span v-else>
@@ -75,7 +75,7 @@
 import { mapActions, mapState } from 'vuex'
 import { vocab, vocabMeta } from '@/vocab'
 import { vocabMap } from '@/util'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/util/Spinner.vue'
 
 export default {
   components: {
@@ -98,14 +98,14 @@ export default {
       })
     },
     invalidInput() {
-      return this.method === 'set' && this.value !== '' && isNaN(parseInt(this.value))
+      return this.method === 'set' && this.value !== '' && isNaN(parseFloat(this.value))
     },
     argMeta() {
       const paramName = vocabMap[this.param]
       return vocabMeta[paramName]
     },
     hasExtra() {
-      return this.argMeta.count > 1
+      return this.argMeta.count === 2 || (this.argMeta.count > 1 && this.method === 'get')
     },
     ...mapState('flo', {
       responses: (state) => state.fead.responses,
@@ -158,6 +158,13 @@ div.fead {
   max-width: 640px;
   margin: 0 auto;
   text-align: center;
+
+  h2 {
+    tt {
+      font-size: 30px;
+      font-weight: bold;
+    }
+  }
   .controls {
     margin: 20px 0;
   }

@@ -23,6 +23,31 @@ export const vocab = {
   PERIOD: 45
 }
 
+export const vocabMap = {
+  0: 'LED',
+  1: 'WRITE_DEFAULTS',
+  2: 'DISCOVER',
+  10: 'SERVO_OFFSET',
+  11: 'SERVO_SEPARATION',
+  12: 'FAN_LEVEL',
+  13: 'FAN_MAX_LEVEL',
+  14: 'FAN_MAX_DURATION',
+  15: 'PRESSURE_SLEEP',
+  16: 'BLOW_SQUEEZE_DELAY',
+  17: 'WATER_LEVEL',
+  18: 'BUBBLE_COUNT',
+  19: 'SQUEEZE_COUNT',
+  20: 'PRESSURE',
+  21: 'SQUEEZE',
+  22: 'BLOW',
+  40: 'TYPE',
+  41: 'ON_DURATION',
+  42: 'DUTY_CYCLE',
+  43: 'GLOBAL_DUTY_CYCLE',
+  44: 'INVERT_OUTPUT',
+  45: 'PERIOD'
+}
+
 export const vocabMeta = {
   LED: {
     count: 1,
@@ -126,7 +151,7 @@ export const vocabMeta = {
       },
       {
         value: 1,
-        text: 'CONTINOUS'
+        text: 'CONT'
       }
     ]
   },
@@ -138,7 +163,7 @@ export const vocabMeta = {
     ]
   },
   DUTY_CYCLE: {
-    count: 1,
+    count: 1.5,
     types: [
       'float'
     ]
