@@ -43,17 +43,28 @@ a {
     cursor: pointer !important;
   }
 }
-
 h2 {
-  font-size: 2rem;
-  margin-bottom: 0;
-}
-h3 {
-  font-size: 1.6rem;
-  color: #777;
+  tt {
+    font-size: 30px;
+    font-weight: bold;
+ }
 }
 
-// 
+th, td {
+  padding: 5px;
+}
+
+//
+// h2 {
+//   font-size: 2rem;
+//   margin-bottom: 0;
+// }
+// h3 {
+//   font-size: 1.6rem;
+//   color: #777;
+// }
+
+//
 // button.primary {
 //   border: none;
 //   color: #fff;

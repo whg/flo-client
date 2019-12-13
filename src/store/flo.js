@@ -32,6 +32,7 @@ export const flo = {
     components: [],
     sequences: {},
     instances: {},
+    groups: {},
     fead: {
       responses: [],
       online: [],
@@ -44,11 +45,15 @@ export const flo = {
     },
     socketSequences(state, sequences) {
       state.sequences = sequences
-      console.log('sequences', sequences)
+      // console.log('sequences', sequences)
     },
     socketInstances(state, instances) {
       state.instances = instances
-      console.log(instances)
+      // console.log(instances)
+    },
+    socketGroups(state, groups) {
+      state.groups = groups
+      // console.log('g', groups)
     },
     socketFeadRequest(state, payload) {
       const r = payload.request
@@ -71,11 +76,10 @@ export const flo = {
     }
   },
   actions: {
-    socketTest({ commit }, payload) {
-      console.log('calling with', payload)
-    },
     socketUpdateSequences() {},
     socketSaveSequences() {},
+    socketUpdateInstance() {},
+    socketGetInstances() {},
     socketFeadRequest() {},
     socketFeadOnline({ state }) {
       state.fead.requestingOnline = true

@@ -38,25 +38,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.wrapper {
-  input {
-    width: 90px;
-    padding: 0px;
-    font-family: monospace;
-    background: unset;
-    border: none;
-    border-bottom: 1px solid #aaa;
-    border-radius: 0;
-
-    &:focus {
-      border: none;
-      border-bottom: 1px solid #666;
-    }
-  }
-}
-</style>
-
 <style lang="scss" scoped>
 $handle-width: 20px;
 

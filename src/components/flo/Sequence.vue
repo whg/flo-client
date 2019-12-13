@@ -30,8 +30,6 @@
         <component v-else :is="elem.func" :data="elem" />
       </wrapper>
     </draggable>
-    <!-- {{ customFunctions }} -->
-    <!-- {{ elements }} -->
   </div>
 </div>
 </template>
@@ -77,7 +75,11 @@ export default {
       sequences: (state) => state.sequences,
       customFunctions(state) {
         try {
-          return state.instances[this.instance].functions
+          let instance = state.instances[this.instance]
+          if (this.instance in state.groups) {
+            instance = state.instances[state.groups[this.instance][0]]
+          }
+          return instance.functions
         } catch (e) {
           return []
         }
@@ -90,7 +92,8 @@ export default {
           func,
           args,
           orig: e,
-          custom: this.isCustom(func)
+          custom: this.isCustom(func),
+          id: e._id
         }
       })
     }
@@ -111,6 +114,9 @@ export default {
         } else if ('program' in sequence) {
           this.elements = sequence.program
         }
+        this.elements.forEach((e, i) => {
+          this.elements[i]._id = this.randomID()
+        })
       } catch (e) {}
     },
     insertElement(name, index) {

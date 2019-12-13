@@ -32,5 +32,20 @@ export default {
 </script>
 
 <style lang="scss">
+#app {
+  input[type="text"] {
+    width: 90px;
+    padding: 0px;
+    font-family: monospace;
+    background: unset;
+    border: none;
+    border-bottom: 1px dashed #aaa;
+    border-radius: 0;
 
+    &:focus {
+      border: none;
+      border-bottom: 1px solid #666;
+    }
+  }
+}
 </style>
