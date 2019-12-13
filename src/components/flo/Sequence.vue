@@ -30,8 +30,8 @@
         <component v-else :is="elem.func" :data="elem" />
       </wrapper>
     </draggable>
-    {{ customFunctions }}
-    {{ elements }}
+    <!-- {{ customFunctions }} -->
+    <!-- {{ elements }} -->
   </div>
 </div>
 </template>
@@ -148,6 +148,7 @@ export default {
 <style lang="scss" scoped>
 .sequence {
   display: flex;
+  width: 100%;
   .sidebar {
     margin: 0px 10px;
     .element-panel button {
@@ -164,6 +165,11 @@ export default {
         color: #fff;
       }
     }
+  }
+
+  .sequence-editor {
+    flex-grow: 1;
+    background: #eee;
   }
 }
 .trash {

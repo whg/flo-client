@@ -74,10 +74,9 @@ export const flo = {
     socketTest({ commit }, payload) {
       console.log('calling with', payload)
     },
-    socketSequences() {
-    },
-    socketFeadRequest() {
-    },
+    socketUpdateSequences() {},
+    socketSaveSequences() {},
+    socketFeadRequest() {},
     socketFeadOnline({ state }) {
       state.fead.requestingOnline = true
     },

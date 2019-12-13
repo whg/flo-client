@@ -18,8 +18,10 @@
         </li>
       </ul>
     </nav>
-    <div class="sequence">
-      <sequence :instance="current.instance" :id="current.sequence"/>
+    <sequence :instance="current.instance" :id="current.sequence"/>
+    <div class="controls">
+      <button class="secondary" @click="update">update</button>
+      <button class="primary" @click="save(sequences)">save</button>
     </div>
   </div>
 </div>
@@ -56,27 +58,31 @@ export default {
   },
   methods: {
     ...mapActions('flo', {
-      updateSequences: 'socketSequences'
+      save: 'socketSaveSequences',
+      updateSequence: 'socketUpdateSequences'
     }),
-    update() {
-      // console.log(this.$store)
-      // this.updateSequences({
-      //   a: {
-      //     b: [1, 2, 3],
-      //     c: 34
-      //   }
-      // })
-    },
     addSequence(instance) {
       const sequence = prompt('Sequence name:')
       this.$set(this.sequences[instance], sequence, [])
       this.current = { instance, sequence }
+    },
+    update() {
+      const { instance, sequence } = this.current
+      this.updateSequence({
+        sequence: this.sequences[instance][sequence],
+        instance,
+        sequenceName: sequence
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+#flo {
+  max-width: 820px;
+  margin: 0 auto;
+}
 .sequence-editor {
   display: flex;
 }
@@ -102,5 +108,12 @@ nav {
 .sequence {
   // display: inline-block;
   // width: 200px;
+}
+.controls {
+  button {
+    display: block;
+    float: right;
+    margin: 0px 5px 5px 0px;
+  }
 }
 </style>

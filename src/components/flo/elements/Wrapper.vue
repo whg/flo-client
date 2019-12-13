@@ -4,13 +4,13 @@
        @mouseup="selectedElement = element"
        @keydown.ctrl.backspace="$emit('remove')">
     <slot></slot>
-    <div v-if="selected" class="meta">
-      <input type="text" placeholder="label"
+    <div class="meta">
+      <input v-if="selected" type="text" placeholder="label"
              v-model="element.orig.label" />
-      <span v-if="element.orig.label" class="label">
+      <span v-else class="label">
         {{ element.orig.label }}
       </span>
-      <span class="delete link" @click="$emit('delete')">✕</span>
+      <span v-if="selected" class="delete link" @click="$emit('delete')">✕</span>
     </div>
   </div>
 </div>
@@ -42,8 +42,17 @@ export default {
 .wrapper {
   input {
     width: 90px;
-    padding: 6px;
+    padding: 0px;
     font-family: monospace;
+    background: unset;
+    border: none;
+    border-bottom: 1px solid #aaa;
+    border-radius: 0;
+
+    &:focus {
+      border: none;
+      border-bottom: 1px solid #666;
+    }
   }
 }
 </style>
@@ -52,21 +61,22 @@ export default {
 $handle-width: 20px;
 
 .wrapper {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   border-radius: 3px;
   background: none;
 
   .inner {
     display: inline-block;
     position: relative;
-    background: #ddd;
-    color: #222;
+    // background: #ddd;
+    color: #555;
     padding: 5px 3px 5px 10px;
     border-radius: 5px;
     font-family: Courier, monospace;
 
     &.custom {
-      background: #dee;
+      // background: #dee;
+      color: #333;
     }
 
     .meta {

@@ -163,7 +163,7 @@ div.fead {
     tt {
       font-size: 30px;
       font-weight: bold;
-    }
+   }
   }
   .controls {
     margin: 20px 0;
