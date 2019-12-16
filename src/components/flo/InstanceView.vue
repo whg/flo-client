@@ -5,16 +5,16 @@
   <table>
     <thead>
       <th v-if="isInstanceArray">{{ arrayIndex }}</th>
-      <th>address</th>
       <th>enabled</th>
+      <th>address</th>
     </thead>
     <tr v-for="options in instanceList" :key="options.id">
       <td v-if="isInstanceArray"> {{ options[arrayIndex] }}</td>
       <td>
-        <input v-model.number="options.address" type="text">
+        <input v-model="options.enabled" type="checkbox">
       </td>
       <td>
-        <input v-model="options.enabled" type="checkbox">
+        <input v-model.number="options.address" type="text">
       </td>
     </tr>
   </table>
@@ -82,7 +82,7 @@ export default {
 
 <style lang="scss" scoped>
 .instance-view {
-  // margin-left: 145px;
+  margin-left: 60px;
   h3 {
     font-size: 18px;
   }
