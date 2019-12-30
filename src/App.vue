@@ -41,6 +41,7 @@ export default {
     border: none;
     border-bottom: 1px dashed #aaa;
     border-radius: 0;
+    margin-right: 10px;
 
     &:focus {
       border: none;

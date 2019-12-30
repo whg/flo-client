@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import socketio from 'socket.io-client'
 import { camelToKebab, vocabMap } from '../util'
 
@@ -37,7 +38,8 @@ export const flo = {
       responses: [],
       online: [],
       requestingOnline: false
-    }
+    },
+    runPoints: {}
   },
   mutations: {
     socketConnect(state) {
@@ -45,7 +47,7 @@ export const flo = {
     },
     socketSequences(state, sequences) {
       state.sequences = sequences
-      // console.log('sequences', sequences)
+      console.log('sequences', sequences)
     },
     socketInstances(state, instances) {
       state.instances = instances
@@ -73,6 +75,10 @@ export const flo = {
     socketFeadOnline(state, payload) {
       state.fead.online = payload
       state.fead.requestingOnline = false
+    },
+    socketRunning(state, payload) {
+      const { id, index } = payload
+      Vue.set(state.runPoints, id, index)
     }
   },
   actions: {

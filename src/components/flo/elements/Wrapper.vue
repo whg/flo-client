@@ -43,8 +43,11 @@ $handle-width: 20px;
 
 .wrapper {
   margin-bottom: 0px;
-  border-radius: 3px;
   background: none;
+
+  &.active {
+    border-left: 1px solid green;
+  }
 
   .inner {
     display: inline-block;

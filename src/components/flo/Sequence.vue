@@ -29,6 +29,7 @@
                  @add="insert">
         <wrapper  v-for="(elem, index) in elementList" :key="elem.id"
                   :element="elem"
+                  :class="runPoint === index ? 'active' : null"
                   @delete="removeElement(index)">
           <custom-function v-if="elem.custom" :name="elem.func"
                            :data="elem"
@@ -52,6 +53,7 @@ import Loop from './elements/Loop.vue'
 import Log from './elements/Log.vue'
 import Nop from './elements/Nop.vue'
 import Brif from './elements/Brif.vue'
+import Run from './elements/Run.vue'
 import CustomFunction from './elements/CustomFunction.vue'
 
 export default {
@@ -65,6 +67,7 @@ export default {
     Log,
     Nop,
     Brif,
+    Run,
     CustomFunction
   },
   props: {
@@ -81,6 +84,9 @@ export default {
   computed: {
     ...mapState('flo', {
       sequences: (state) => state.sequences,
+      runPoint(state) {
+        return state.runPoints[`${this.instance}-${this.id}`]
+      },
       customFunctions(state) {
         try {
           let instance = state.instances[this.instance]
@@ -227,6 +233,5 @@ export default {
     height: 100% !important;
     display: none;
   }
-
 }
 </style>
