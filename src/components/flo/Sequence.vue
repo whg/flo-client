@@ -1,35 +1,42 @@
 <template lang="html">
-<div class="sequence">
-  <div class="sidebar">
-    <div class="element-panel">
-      <draggable :group="{ name: 'g', pull: 'clone', put: false }" :sort="false">
-        <button v-for="builtin in builtinFunctions" :key="builtin"
-                :name="builtin" @click="insertElement(builtin)">
-          {{ builtin }}
-        </button>
-        <button v-for="custom in Object.keys(customFunctions)" :key="custom"
-                class="custom" :name="custom"
-                @click="insertElement(custom)">
-          {{ custom }}
-        </button>
+<div id="sequence-container">
+  <header>
+    <span>Schedule</span>
+    <input v-model="schedule" type="text" placeholder="auto"
+           @input="scheduleChange">
+  </header>
+  <div class="sequence">
+    <div class="sidebar">
+      <div class="element-panel">
+        <draggable :group="{ name: 'g', pull: 'clone', put: false }" :sort="false">
+          <button v-for="builtin in builtinFunctions" :key="builtin"
+                  :name="builtin" @click="insertElement(builtin)">
+            {{ builtin }}
+          </button>
+          <button v-for="custom in Object.keys(customFunctions)" :key="custom"
+                  class="custom" :name="custom"
+                  @click="insertElement(custom)">
+            {{ custom }}
+          </button>
+        </draggable>
+      </div>
+    </div>
+    <div class="sequence-editor">
+      <draggable v-if="elements.length > 0"
+                 v-model="elements" :group="'g'"
+                 class="elements" handle=".handle"
+                 @start="drag = true"
+                 @add="insert">
+        <wrapper  v-for="(elem, index) in elementList" :key="elem.id"
+                  :element="elem"
+                  @delete="removeElement(index)">
+          <custom-function v-if="elem.custom" :name="elem.func"
+                           :data="elem"
+                           :arg-count="customFunctions[elem.func].argCount" />
+          <component v-else :is="elem.func" :data="elem" />
+        </wrapper>
       </draggable>
     </div>
-  </div>
-  <div class="sequence-editor">
-    <draggable v-if="elements.length > 0"
-               v-model="elements" :group="'g'"
-               class="elements" handle=".handle"
-               @start="drag = true"
-               @add="insert">
-      <wrapper  v-for="(elem, index) in elementList" :key="elem.id"
-                :element="elem"
-                @delete="removeElement(index)">
-        <custom-function v-if="elem.custom" :name="elem.func"
-                         :data="elem"
-                         :arg-count="customFunctions[elem.func].argCount" />
-        <component v-else :is="elem.func" :data="elem" />
-      </wrapper>
-    </draggable>
   </div>
 </div>
 </template>
@@ -67,6 +74,7 @@ export default {
   data() {
     return {
       elements: [],
+      schedule: null,
       drag: false
     }
   },
@@ -85,6 +93,9 @@ export default {
         }
       }
     }),
+    sequence() {
+      return this.sequences[this.instance][this.id]
+    },
     elementList() {
       return this.elements.map(e => {
         const [func, ...args] = e['::'].split(/\s+/)
@@ -108,12 +119,12 @@ export default {
     },
     update() {
       try {
-        const sequence = this.sequences[this.instance][this.id]
-        if (Array.isArray(sequence)) {
-          this.elements = sequence
-        } else if ('program' in sequence) {
-          this.elements = sequence.program
+        if (Array.isArray(this.sequence)) {
+          this.elements = this.sequence
+        } else if ('program' in this.sequence) {
+          this.elements = this.sequence.program
         }
+        this.schedule = this.sequence.schedule || null
         this.elements.forEach((e, i) => {
           this.elements[i]._id = this.randomID()
         })
@@ -143,6 +154,23 @@ export default {
     },
     reflow() {
 
+    },
+    scheduleChange({ target }) {
+      let { value } = target
+
+      if (Array.isArray(this.sequence)) {
+        const program = [...this.sequence]
+        this.$store.state.flo.sequences[this.instance][this.id] = {
+          program,
+          schedule: value
+        }
+      } else {
+        if (value) {
+          this.sequence.schedule = value
+        } else {
+          delete this.sequence.schedule
+        }
+      }
     }
   },
   created() {
@@ -152,11 +180,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#sequence-container {
+  width: 100%;
+  margin: 0px 10px;
+
+  header {
+    margin-bottom: 5px;
+    text-align: right;
+    input[type="text"] {
+      width: 120px;
+      margin-left: 10px;
+    }
+  }
+}
+
 .sequence {
   display: flex;
   width: 100%;
   .sidebar {
-    margin: 0px 10px;
+    margin-right: 10px;
     .element-panel button {
       display: block;
       padding: 0;
