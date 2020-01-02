@@ -33,7 +33,9 @@ export const flo = {
     components: [],
     sequences: {},
     instances: {},
+    variables: {},
     groups: {},
+    message: 'me3',
     fead: {
       responses: [],
       online: [],
@@ -57,6 +59,10 @@ export const flo = {
       state.groups = groups
       // console.log('g', groups)
     },
+    socketVariables(state, v) {
+      console.log(v)
+      state.variables = v
+    },
     socketFeadRequest(state, payload) {
       const r = payload.request
 
@@ -79,11 +85,21 @@ export const flo = {
     socketRunning(state, payload) {
       const { id, index } = payload
       Vue.set(state.runPoints, id, index)
+    },
+    socketMessage(state, payload) {
+      const { message } = payload
+      state.message = message
+      setTimeout(() => {
+        state.message = null
+      }, 2000)
+      console.log('updated message', payload)
     }
   },
   actions: {
     socketUpdateSequences() {},
     socketSaveSequences() {},
+    socketUpdateVariables() {},
+    socketSaveVariables() {},
     socketUpdateInstance() {},
     socketGetInstances() {},
     socketFeadRequest() {},

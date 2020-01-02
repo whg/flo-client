@@ -2,8 +2,7 @@
 <div id="flo">
   <header>
     <h2><tt>fead</tt>Flo</h2>
-    <h4>{{ current.instance }}</h4>
-    <h5>{{ current.sequence }}</h5>
+    <span class="message">{{ message }}</span>
     <div class="controls">
       <button class="secondary" @click="update">update</button>
       <button class="primary" @click="save">save</button>
@@ -12,10 +11,17 @@
 
   <div class="columns">
     <nav>
+      <b class="link" @click="current = 'variables'"
+         :class="{ selected: mode === 'variables'}">
+        Variables
+      </b>
+      <hr>
       <ul v-for="(seqs, instance) in sequences" :key="instance">
         <li>
           <div class="instance link">
-            <b @click="current = { instance }">{{ instance }}</b>
+            <b @click="current = { instance }" :class="{ selected: current.instance === instance && mode === 'instance-view' }">
+              {{ instance }}
+            </b>
             <ul>
               <li v-for="(seq, seqName) in seqs" :key="seqName"
                   class="link"
@@ -31,8 +37,10 @@
         </li>
       </ul>
     </nav>
-    <sequence v-if="mode === 'sequence-editor'" :instance="current.instance" :id="current.sequence"/>
-    <instance-view v-else ref="instanceView" :instance-name-or-group="current.instance"/>
+    <variables v-if="mode === 'variables'" ref="variables"/>
+    <sequence v-else-if="mode === 'sequence-editor'" :instance="current.instance" :id="current.sequence"/>
+    <instance-view v-else-if="mode === 'instance-view'" ref="instanceView" :instance-name-or-group="current.instance"/>
+
   </div>
 </div>
 </template>
@@ -41,11 +49,13 @@
 import { mapActions, mapState } from 'vuex'
 import Sequence from '@/components/flo/Sequence.vue'
 import InstanceView from '@/components/flo/InstanceView.vue'
+import Variables from '@/components/flo/Variables.vue'
 
 export default {
   components: {
     Sequence,
-    InstanceView
+    InstanceView,
+    Variables
   },
   data() {
     return {
@@ -57,10 +67,13 @@ export default {
   },
   computed: {
     ...mapState('flo', [
-      'sequences'
+      'sequences',
+      'message'
     ]),
     mode() {
-      if (this.current.sequence) {
+      if (this.current === 'variables') {
+        return 'variables'
+      } else if (this.current.sequence) {
         return 'sequence-editor'
       } else if (this.current.instance) {
         return 'instance-view'
@@ -101,11 +114,15 @@ export default {
         })
       } else if (this.mode === 'instance-view') {
         this.$refs.instanceView.update()
+      } else if (this.mode === 'variables') {
+        this.$refs.variables.update()
       }
     },
     save() {
       if (this.mode === 'sequence-editor') {
         this.saveSequences(this.sequences)
+      } else if (this.mode === 'variables') {
+        this.$refs.variables.save()
       }
     }
   },
@@ -132,6 +149,9 @@ header {
     margin-right: 10px;
     color: #444;
   }
+  .message {
+    color: #888;
+  }
 }
 
 .columns {
@@ -152,10 +172,6 @@ nav {
       list-style: korean;
       span {
         padding: 3px 6px;
-      }
-      span.selected {
-        // border: 1px dashed #333;
-        // border-radius: 5px;
       }
     }
   }
@@ -182,5 +198,9 @@ nav {
     color: #fff;
     border: none;
   }
+}
+
+.selected {
+  color: #0b9;
 }
 </style>

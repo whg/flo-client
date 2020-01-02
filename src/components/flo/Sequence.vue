@@ -53,7 +53,6 @@ import Loop from './elements/Loop.vue'
 import Log from './elements/Log.vue'
 import Nop from './elements/Nop.vue'
 import Brif from './elements/Brif.vue'
-import Run from './elements/Run.vue'
 import CustomFunction from './elements/CustomFunction.vue'
 
 export default {
@@ -67,7 +66,6 @@ export default {
     Log,
     Nop,
     Brif,
-    Run,
     CustomFunction
   },
   props: {
