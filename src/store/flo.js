@@ -35,7 +35,8 @@ export const flo = {
     instances: {},
     variables: {},
     groups: {},
-    message: 'me3',
+    message: '',
+    log: [],
     fead: {
       responses: [],
       online: [],
@@ -57,7 +58,7 @@ export const flo = {
     },
     socketGroups(state, groups) {
       state.groups = groups
-      // console.log('g', groups)
+      console.log('g', groups)
     },
     socketVariables(state, v) {
       console.log(v)
@@ -93,6 +94,9 @@ export const flo = {
         state.message = null
       }, 2000)
       console.log('updated message', payload)
+    },
+    socketLog(state, line) {
+      state.log.unshift(line)
     }
   },
   actions: {
