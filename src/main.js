@@ -19,7 +19,8 @@ Vue.mixin({
 Vue.use({
   install(v) {
     v.prototype.builtinFunctions = [
-      'delay', 'set', 'loop', 'brif', 'nop', 'jump', 'log', 'run'
+      'delay', 'set', 'get',
+      'loop', 'if', 'nop', 'jump', 'log', 'end'
     ]
   }
 })

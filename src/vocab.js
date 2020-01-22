@@ -7,14 +7,15 @@ export const vocab = {
   FAN_LEVEL: 12,
   FAN_MAX_LEVEL: 13,
   FAN_MAX_DURATION: 14,
-  PRESSURE_SLEEP: 15,
-  BLOW_SQUEEZE_DELAY: 16,
-  WATER_LEVEL: 17,
-  BUBBLE_COUNT: 18,
-  SQUEEZE_COUNT: 19,
-  PRESSURE: 20,
-  SQUEEZE: 21,
-  BLOW: 22,
+  SQUEEZE_SLEEP: 15,
+  NO_BUBBLE_THRESHOLD: 16,
+  NO_BUBBLE_TIMEOUT: 17,
+  WATER_LEVEL: 18,
+  BUBBLE_COUNT: 19,
+  SQUEEZE_COUNT: 20,
+  BUBBLE_DISTANCE: 21,
+  SQUEEZE: 22,
+  BLOW: 23,
   TYPE: 40,
   ON_DURATION: 41,
   DUTY_CYCLE: 42,
@@ -32,14 +33,15 @@ export const vocabMap = {
   12: 'FAN_LEVEL',
   13: 'FAN_MAX_LEVEL',
   14: 'FAN_MAX_DURATION',
-  15: 'PRESSURE_SLEEP',
-  16: 'BLOW_SQUEEZE_DELAY',
-  17: 'WATER_LEVEL',
-  18: 'BUBBLE_COUNT',
-  19: 'SQUEEZE_COUNT',
-  20: 'PRESSURE',
-  21: 'SQUEEZE',
-  22: 'BLOW',
+  15: 'SQUEEZE_SLEEP',
+  16: 'NO_BUBBLE_THRESHOLD',
+  17: 'NO_BUBBLE_TIMEOUT',
+  18: 'WATER_LEVEL',
+  19: 'BUBBLE_COUNT',
+  20: 'SQUEEZE_COUNT',
+  21: 'BUBBLE_DISTANCE',
+  22: 'SQUEEZE',
+  23: 'BLOW',
   40: 'TYPE',
   41: 'ON_DURATION',
   42: 'DUTY_CYCLE',
@@ -109,13 +111,19 @@ export const vocabMeta = {
       'int'
     ]
   },
-  PRESSURE_SLEEP: {
+  SQUEEZE_SLEEP: {
     count: 1,
     types: [
       'int'
     ]
   },
-  BLOW_SQUEEZE_DELAY: {
+  NO_BUBBLE_THRESHOLD: {
+    count: 1,
+    types: [
+      'int'
+    ]
+  },
+  NO_BUBBLE_TIMEOUT: {
     count: 1,
     types: [
       'int'
@@ -130,7 +138,7 @@ export const vocabMeta = {
   SQUEEZE_COUNT: {
     count: 0
   },
-  PRESSURE: {
+  BUBBLE_DISTANCE: {
     count: 0
   },
   SQUEEZE: {

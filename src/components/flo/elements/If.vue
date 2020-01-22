@@ -15,7 +15,7 @@
 import BaseElement from './BaseElement.vue'
 
 export default {
-  name: 'brif',
+  name: 'if',
   components: {
     BaseElement
   },
@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     change() {
-      const f = `brif ${this.operator} ${this.test} ${this.destination}`
+      const f = `if ${this.operator} ${this.test} ${this.destination}`
       this.$set(this.data.orig, '::', f)
     }
   },

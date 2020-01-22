@@ -159,12 +159,6 @@ div.fead {
   margin: 0 auto;
   text-align: center;
 
-  h2 {
-    tt {
-      font-size: 30px;
-      font-weight: bold;
-   }
-  }
   .controls {
     margin: 20px 0;
   }

@@ -20,7 +20,7 @@ div.log {
   max-width: 640px;
   margin: 0 auto;
   font-family: Courier, monospace;
-
+  font-size: 12px;
   p {
     margin: 0;
   }

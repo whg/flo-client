@@ -114,6 +114,7 @@ export default {
         })
       } else if (this.mode === 'instance-view') {
         this.$refs.instanceView.update()
+        console.log('updating insance')
       } else if (this.mode === 'variables') {
         this.$refs.variables.update()
       }

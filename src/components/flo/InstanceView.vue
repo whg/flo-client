@@ -65,7 +65,15 @@ export default {
       return l.map(e => ({ ...e, id: this.randomID() }))
     },
     update() {
-      if (this.instanceList.length === 1) {
+      if (this.isInstanceArray) {
+        this.updateInstance({
+          name: this.instanceNameOrGroup,
+          options: this.instanceList.map(e => ({
+            [this.arrayIndex]: e[this.arrayIndex],
+            enabled: e.enabled
+          }))
+        })
+      } else if (this.instanceList.length === 1) {
         this.updateInstance({
           name: this.instanceNameOrGroup,
           options: this.instanceList[0]

@@ -25,7 +25,7 @@ export const socketPlugin = ((socket) => {
       }
     })
   }
-})(socketio('http://localhost:3000'))
+})(socketio('http://192.168.1.158:3000'))
 
 export const flo = {
   namespaced: true,
@@ -84,8 +84,9 @@ export const flo = {
       state.fead.requestingOnline = false
     },
     socketRunning(state, payload) {
-      const { id, index } = payload
-      Vue.set(state.runPoints, id, index)
+      const { id } = payload
+      Vue.set(state.runPoints, id, payload)
+      console.log(payload)
     },
     socketMessage(state, payload) {
       const { message } = payload

@@ -22,6 +22,9 @@
       </div>
     </div>
     <div class="sequence-editor">
+      <span v-if="runPoint && runPoint.instanceChannel" class="instance-channel">
+        {{ runPoint.instanceChannel }}
+      </span>
       <draggable v-if="elements.length > 0"
                  v-model="elements" :group="'g'"
                  class="elements" handle=".handle"
@@ -29,7 +32,7 @@
                  @add="insert">
         <wrapper  v-for="(elem, index) in elementList" :key="elem.id"
                   :element="elem"
-                  :class="runPoint === index ? 'active' : null"
+                  :class="runPoint && runPoint.index === index ? 'active' : null"
                   @delete="removeElement(index)">
           <custom-function v-if="elem.custom" :name="elem.func"
                            :data="elem"
@@ -49,10 +52,12 @@ import Wrapper from './elements/Wrapper.vue'
 import Action from './Action.vue'
 import Delay from './elements/Delay.vue'
 import FeadSet from './elements/FeadSet.vue'
+import FeadGet from './elements/FeadGet.vue'
 import Loop from './elements/Loop.vue'
 import Log from './elements/Log.vue'
 import Nop from './elements/Nop.vue'
-import Brif from './elements/Brif.vue'
+import End from './elements/End.vue'
+import If from './elements/If.vue'
 import CustomFunction from './elements/CustomFunction.vue'
 
 export default {
@@ -62,10 +67,12 @@ export default {
     Action,
     Delay,
     set: FeadSet,
+    get: FeadGet,
     Loop,
     Log,
     Nop,
-    Brif,
+    End,
+    If,
     CustomFunction
   },
   props: {
@@ -83,9 +90,12 @@ export default {
     ...mapState('flo', {
       sequences: (state) => state.sequences,
       runPoint(state) {
-        return state.runPoints[`${this.instance}-${this.id}`]
+        return state.runPoints[`${this.instance}.${this.id}`]
       },
       customFunctions(state) {
+        console.log('inst', state.instances)
+        console.log(state.instances[this.instance])
+        console.log(this.elementList)
         try {
           let instance = state.instances[this.instance]
           if (this.instance in state.groups) {
@@ -161,7 +171,6 @@ export default {
     },
     scheduleChange({ target }) {
       let { value } = target
-
       if (Array.isArray(this.sequence)) {
         const program = [...this.sequence]
         this.$store.state.flo.sequences[this.instance][this.id] = {
@@ -192,7 +201,7 @@ export default {
     margin-bottom: 5px;
     text-align: right;
     input[type="text"] {
-      width: 120px;
+      width: 200px;
       margin-left: 10px;
     }
   }
@@ -222,6 +231,12 @@ export default {
   .sequence-editor {
     flex-grow: 1;
     background: #eee;
+    position: relative;
+
+    .instance-channel {
+      position: absolute;
+      right: 10px;
+    }
   }
 }
 .trash {
