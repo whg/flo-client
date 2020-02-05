@@ -26,6 +26,7 @@ export const socketPlugin = ((socket) => {
     })
   }
 })(socketio('http://192.168.1.158:3000'))
+// })(socketio('http://192.168.1.2:3000'))
 
 export const flo = {
   namespaced: true,
@@ -36,11 +37,14 @@ export const flo = {
     variables: {},
     groups: {},
     message: '',
+    state: {},
     log: [],
     fead: {
       responses: [],
       online: [],
-      requestingOnline: false
+      requestingOnline: false,
+      appendResponse: true,
+      nextResponse: null
     },
     runPoints: {}
   },
@@ -65,19 +69,23 @@ export const flo = {
       state.variables = v
     },
     socketFeadRequest(state, payload) {
-      const r = payload.request
+      // payload: { { method, address, ...}: request, int: value }
+      if (state.fead.appendResponse) {
+        const r = payload.request
+        let request = `${r.method[0]}${r.address}:${vocabMap[r.param]}`
+        if (r.value) {
+          request += `:${r.value}`
+        }
 
-      let request = `${r.method[0]}${r.address}:${vocabMap[r.param]}`
-      if (r.value) {
-        request += `:${r.value}`
+        if (r.extraValue) {
+          request += `:${r.extraValue}`
+        }
+        payload.requestString = request
+        payload.index = state.fead.responses.length
+        state.fead.responses.unshift(payload)
+      } else {
+        state.fead.nextResponse = payload
       }
-
-      if (r.extraValue) {
-        request += `:${r.extraValue}`
-      }
-      payload.requestString = request
-      payload.index = state.fead.responses.length
-      state.fead.responses.unshift(payload)
     },
     socketFeadOnline(state, payload) {
       state.fead.online = payload
@@ -86,7 +94,6 @@ export const flo = {
     socketRunning(state, payload) {
       const { id } = payload
       Vue.set(state.runPoints, id, payload)
-      console.log(payload)
     },
     socketMessage(state, payload) {
       const { message } = payload
@@ -98,6 +105,10 @@ export const flo = {
     },
     socketLog(state, line) {
       state.log.unshift(line)
+    },
+    socketState(state, payload) {
+      state.state = payload
+      console.log('state =', payload)
     }
   },
   actions: {
@@ -107,11 +118,23 @@ export const flo = {
     socketSaveVariables() {},
     socketUpdateInstance() {},
     socketGetInstances() {},
-    socketFeadRequest() {},
+    socketFeadRequest({ state }) {
+      state.fead.appendResponse = false
+      state.fead.nextResponse = null
+      return new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (state.fead.nextResponse) {
+            clearInterval(interval)
+            state.fead.appendResponse = true
+            resolve(state.fead.nextResponse)
+          }
+        }, 10)
+      })
+    },
     socketFeadOnline({ state }) {
       state.fead.requestingOnline = true
     },
-    socketPod() {
-    }
+    socketPod() {},
+    socketState() {}
   }
 }

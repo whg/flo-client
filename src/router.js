@@ -18,6 +18,16 @@ const routes = [
     path: '/log',
     name: 'log',
     component: () => import(/* webpackChunkName: "log" */ './views/Log.vue')
+  },
+  {
+    path: '/tree',
+    name: 'tree',
+    component: () => import(/* webpackChunkName: "tree" */ './views/Tree.vue')
+  },
+  {
+    path: '/test-bed',
+    name: 'test-bed',
+    component: () => import(/* webpackChunkName: "test-bed" */ './views/TestBed.vue')
   }
 ]
 
