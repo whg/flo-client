@@ -1,5 +1,5 @@
 <template lang="html">
-  <bubble-viewer :addresses="[1, 2]"/>
+  <bubble-viewer :addresses="[1]"/>
 </template>
 
 <script>

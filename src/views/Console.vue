@@ -1,6 +1,11 @@
 <template lang="html">
 <div class="fead">
   <h2><tt>fead</tt>Console</h2>
+  <p class="power">
+    Power:
+    <a @click="power(1)">on</a>
+    <a @click="power(0)">off</a>
+  </p>
   <p>
     <spinner v-if="requestingOnline"/>
     <span v-else>
@@ -145,10 +150,17 @@ export default {
       if (name) {
         this.saved.push(Object.assign({}, request, { name }))
       }
+    },
+    power(value) {
+      this.sendFead({ method: 'power', value })
     }
   },
   mounted() {
+    this.$store.state.flo.fead.collectResponses = true
     this.getOnline()
+  },
+  beforeDestroy() {
+    this.$store.state.flo.fead.collectResponses = false
   }
 }
 </script>
@@ -169,6 +181,12 @@ input[type="text"] {
 
 input.address {
   width: 50px;
+}
+
+p.power {
+  a {
+    margin-left: 0.5rem;
+  }
 }
 
 span.extra {

@@ -13,9 +13,10 @@ export const vocab = {
   WATER_LEVEL: 18,
   BUBBLE_COUNT: 19,
   SQUEEZE_COUNT: 20,
-  BUBBLE_DISTANCE: 21,
-  SQUEEZE: 22,
-  BLOW: 23,
+  BLOW_COUNT: 21,
+  BUBBLE_DISTANCE: 22,
+  SQUEEZE: 23,
+  BLOW: 24,
   TYPE: 40,
   ON_DURATION: 41,
   DUTY_CYCLE: 42,
@@ -39,9 +40,10 @@ export const vocabMap = {
   18: 'WATER_LEVEL',
   19: 'BUBBLE_COUNT',
   20: 'SQUEEZE_COUNT',
-  21: 'BUBBLE_DISTANCE',
-  22: 'SQUEEZE',
-  23: 'BLOW',
+  21: 'BLOW_COUNT',
+  22: 'BUBBLE_DISTANCE',
+  23: 'SQUEEZE',
+  24: 'BLOW',
   40: 'TYPE',
   41: 'ON_DURATION',
   42: 'DUTY_CYCLE',
@@ -136,6 +138,9 @@ export const vocabMeta = {
     count: 0
   },
   SQUEEZE_COUNT: {
+    count: 0
+  },
+  BLOW_COUNT: {
     count: 0
   },
   BUBBLE_DISTANCE: {

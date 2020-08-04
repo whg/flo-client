@@ -28,6 +28,16 @@ const routes = [
     path: '/test-bed',
     name: 'test-bed',
     component: () => import(/* webpackChunkName: "test-bed" */ './views/TestBed.vue')
+  },
+  {
+    path: '/pods',
+    name: 'pods',
+    component: () => import(/* webpackChunkName: "pods" */ './views/Pods.vue')
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import(/* webpackChunkName: "pods" */ './views/Dashboard.vue')
   }
 ]
 

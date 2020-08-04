@@ -1,6 +1,7 @@
+
 import Vue from 'vue'
 import socketio from 'socket.io-client'
-import { camelToKebab, vocabMap } from '../util'
+import { camelToKebab, vocabMap, sameRequest, randomID } from '../util'
 
 export const socketPlugin = ((socket) => {
   const prefix = 'flo/socket'
@@ -8,10 +9,11 @@ export const socketPlugin = ((socket) => {
   const extract = name => camelToKebab(name.slice(prefix.length))
 
   return (store) => {
+    store.state.flo.socket = socket
+
     Object.keys(store._mutations).forEach((funcName) => {
       if (prefixRegex.exec(funcName)) {
         const channel = extract(funcName)
-        console.log(funcName, channel)
         socket.on(channel, (data) => {
           store.commit(funcName, data)
         })
@@ -25,12 +27,14 @@ export const socketPlugin = ((socket) => {
       }
     })
   }
-})(socketio('http://192.168.1.158:3000'))
+})(socketio('http://192.168.43.16:3000'))
+// })(socketio('http://192.168.1.158:3000'))
 // })(socketio('http://192.168.1.2:3000'))
 
 export const flo = {
   namespaced: true,
   state: {
+    socket: null,
     components: [],
     sequences: {},
     instances: {},
@@ -40,11 +44,10 @@ export const flo = {
     state: {},
     log: [],
     fead: {
+      collectResponses: false,
       responses: [],
       online: [],
-      requestingOnline: false,
-      appendResponse: true,
-      nextResponse: null
+      requestingOnline: false
     },
     runPoints: {}
   },
@@ -70,7 +73,7 @@ export const flo = {
     },
     socketFeadRequest(state, payload) {
       // payload: { { method, address, ...}: request, int: value }
-      if (state.fead.appendResponse) {
+      if (state.fead.collectResponses) {
         const r = payload.request
         let request = `${r.method[0]}${r.address}:${vocabMap[r.param]}`
         if (r.value) {
@@ -83,8 +86,6 @@ export const flo = {
         payload.requestString = request
         payload.index = state.fead.responses.length
         state.fead.responses.unshift(payload)
-      } else {
-        state.fead.nextResponse = payload
       }
     },
     socketFeadOnline(state, payload) {
@@ -118,23 +119,56 @@ export const flo = {
     socketSaveVariables() {},
     socketUpdateInstance() {},
     socketGetInstances() {},
+    socketRun() {},
     socketFeadRequest({ state }) {
-      state.fead.appendResponse = false
-      state.fead.nextResponse = null
+      // state.fead.appendResponse = false
+      // state.fead.nextResponse = null
+      // console.log('sending', arguments[1])
+      // return new Promise((resolve) => {
+      //   const interval = setInterval(() => {
+      //     if (state.fead.nextResponse) {
+      //       console.log('resolving')
+      //       clearInterval(interval)
+      //       const response = state.fead.nextResponse
+      //       state.fead.nextResponse = null
+      //       state.fead.appendResponse = true
+      //       resolve(response)
+      //     }
+      //   }, 10)
+      // })
+    },
+    feadRequest({ state }, req) {
       return new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (state.fead.nextResponse) {
-            clearInterval(interval)
-            state.fead.appendResponse = true
-            resolve(state.fead.nextResponse)
+        state.socket.emit('fead-request', req)
+        function handler({ request, value }) {
+          if (sameRequest(req, request)) {
+            state.socket.removeEventListener('fead-request', handler)
+            resolve(value)
           }
-        }, 10)
+        }
+        state.socket.on('fead-request', handler)
       })
     },
     socketFeadOnline({ state }) {
       state.fead.requestingOnline = true
     },
-    socketPod() {},
-    socketState() {}
+    floRequest({ state }, reqOrCommand) {
+      let req = { id: randomID() }
+      console.log('sending', req, reqOrCommand)
+      if (typeof reqOrCommand === 'string') {
+        req.command = reqOrCommand
+      } else { // assume object
+        req = Object.assign(req, reqOrCommand)
+      }
+      return new Promise((resolve) => {
+        state.socket.emit('request', req)
+        state.socket.once(`response-${req.id}`, ({ request, response }) => {
+          resolve(response)
+        })
+      })
+    }
+    // socketPod() {},
+    // socketState() {},
+    // socketControl() {}
   }
 }

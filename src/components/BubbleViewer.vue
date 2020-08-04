@@ -2,12 +2,12 @@
   <div class="small">
     {{ addresses }}
     <line-chart v-if="chartData" ref="chart" :chart-data="chartData"></line-chart>
-    <button @click="fillData()">Randomize</button>
+    <button @click="test()">Randomize</button>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import LineChart from '@/charts/Line.js'
 import { vocab } from '@/vocab'
 
@@ -25,7 +25,7 @@ export default {
     return {
       chartData: null,
       interval: null,
-      intervalDelay: 120,
+      intervalDelay: 200,
       values: {},
       colours: [
         '#ff9999',
@@ -33,6 +33,9 @@ export default {
         '#9999ff'
       ]
     }
+  },
+  computed: {
+    ...mapState('flo', ['socket'])
   },
   watch: {
     addresses(newValue, oldValue) {
@@ -54,24 +57,24 @@ export default {
     }
   },
   methods: {
-    ...mapActions('flo', {
-      sendFead: 'socketFeadRequest'
-    }),
-    requestData() {
-      this.addresses.forEach((address, i) => {
-        this.sendFead({
+    ...mapActions('flo', ['feadRequest']),
+    async requestData() {
+      this.addresses.forEach(async(address, i) => {
+        const request = {
           method: 'get',
-          address: address,
+          address,
           param: vocab.BUBBLE_DISTANCE
-        }).then(({ request, value }) => {
-          this.values[request.address].push({
-            t: new Date(),
-            y: value
-          })
-          if (i === Object.keys(this.values).length - 1) {
-            this.generateData()
-          }
+        }
+        const value = await this.feadRequest(request)
+
+        this.values[request.address].push({
+          t: new Date(),
+          y: value
         })
+
+        if (i === Object.keys(this.values).length - 1) {
+          this.generateData()
+        }
       })
     },
     generateData() {
@@ -84,6 +87,9 @@ export default {
           borderColor: this.colours[i]
         }))
       }
+    },
+    async test() {
+
     }
   },
   mounted() {
