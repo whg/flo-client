@@ -49,7 +49,8 @@ export const flo = {
       online: [],
       requestingOnline: false
     },
-    runPoints: {}
+    runPoints: {},
+    runningSequences: []
   },
   mutations: {
     socketConnect(state) {
@@ -61,7 +62,6 @@ export const flo = {
     },
     socketInstances(state, instances) {
       state.instances = instances
-      // console.log(instances)
     },
     socketGroups(state, groups) {
       state.groups = groups
@@ -92,9 +92,26 @@ export const flo = {
       state.fead.online = payload
       state.fead.requestingOnline = false
     },
+    socketSequenceStarted(state, id) {
+      if (!state.runningSequences.includes(id)) {
+        state.runningSequences.push(id)
+      }
+    },
+    socketSequenceEnded(state, id) {
+      console.log('ended', id)
+      const index = state.runningSequences.indexOf(id)
+      if (id !== -1) {
+        state.runningSequences.splice(index, 1)
+        console.log('removed', id, index, state.runningSequences)
+      }
+    },
     socketRunning(state, payload) {
       const { id } = payload
       Vue.set(state.runPoints, id, payload)
+      console.log('running', id, payload)
+      if (!state.runningSequences.includes(id)) {
+        state.runningSequences.push(id)
+      }
     },
     socketMessage(state, payload) {
       const { message } = payload
@@ -110,6 +127,9 @@ export const flo = {
     socketState(state, payload) {
       state.state = payload
       console.log('state =', payload)
+    },
+    socketNotification(state, payload) {
+      console.log('got notification', payload)
     }
   },
   actions: {
@@ -154,7 +174,7 @@ export const flo = {
     },
     floRequest({ state }, reqOrCommand) {
       let req = { id: randomID() }
-      console.log('sending', req, reqOrCommand)
+      // console.log('sending', req, reqOrCommand)
       if (typeof reqOrCommand === 'string') {
         req.command = reqOrCommand
       } else { // assume object

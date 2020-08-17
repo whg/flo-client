@@ -2,11 +2,14 @@
 <div class="">
   <h2>Pods</h2>
   {{ pods }}
+  {{ JSON.stringify(runningSequences) }}
   <table>
     <thead>
       <th>Channel</th>
       <th>UID</th>
       <th>Status</th>
+      <th></th>
+      <!-- <th>Enabled</th> -->
       <!-- <th>Squeezes / hour</th> -->
       <!-- <th>Bubbles / hour</th> -->
       <th></th>
@@ -15,9 +18,15 @@
       <tr v-for="pod in pods" :key="pod.channel">
         <td>{{ pod.channel }}</td>
         <td>{{ pod.uid || '-' }}</td>
-        <td>{{ pod.on ? 'on' : 'off' }}</td>
-        <!-- <td></td> -->
-        <!-- <td></td> -->
+        <td>
+          <i v-if="!pod.on" class="status offline"></i>
+          <spinner v-else-if="pod.on && !pod.uid" />
+          <i v-else-if="pod.on && pod.uid" class="status online"></i>
+        </td>
+        <!-- <td>
+             {{ pod.enabled ? '✓' : '-' }}
+             </td> -->
+        <td @click="togglePower(pod)">Power {{ pod.on ? 'off' : 'on' }}</td>
         <td @click="selectedPod = pod">edit</td>
       </tr>
     </tbody>
@@ -25,16 +34,20 @@
 
   <div v-if="selectedPod" class="">
     <h3>{{ selectedPod }}</h3>
-    <span @click="power(selectedPod, true)">Power on</span>
-    <span @click="power(selectedPod, false)">Power off</span>
+    <span @click="powerPod(selectedPod, true)">Power on</span>
+    <span @click="powerPod(selectedPod, false)">Power off</span>
   </div>
 </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import Spinner from '@/components/util/Spinner.vue'
 
 export default {
+  components: {
+    Spinner
+  },
   data() {
     return {
       pods: {},
@@ -43,7 +56,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('flo', [])
+    ...mapState('flo', ['runningSequences'])
     // ...mapState('flo', ['state']),
     // ...mapState('flo', {
     //   pods: (store) => {
@@ -62,34 +75,39 @@ export default {
       // sendControl: 'socketControl',
       // run: 'socketRun'
     }),
-    power(pod, value) {
+    startInterval() {
+      clearTimeout(this.interval)
+      this.floRequest('state').then((state) => {
+        this.pods = state.pods
+        this.interval = setTimeout(() => {
+          this.startInterval()
+        }, 1000)
+      })
+    },
+    togglePower(pod) {
       this.floRequest({
-        command: 'enablePod',
+        command: 'powerPod',
         args: {
           channel: pod.channel,
-          value
+          value: !pod.on
         }
       })
-      // this.sendControl({
-      //   command: 'enablePod',
-      //   args: { channel: pod.channel, value }
-      // })
-      // if (value) {
-      //   setTimeout(() => {
-      //     this.run({
-      //       name: 'Pods.setup',
-      //       arg: { count: pod.index, follow: false }
-      //     })
-      //     console.log(pod)
-      //   }, 1000)
-      // }
+    },
+    podStatus(pod) {
+      if (pod.enabled) {
+        if (pod.address) {
+          return 'online'
+        } else if (pod.on) {
+          return 'registering'
+        } else {
+          return 'offline'
+        }
+      }
+      return 'notenabled'
     }
   },
   created() {
-    this.floRequest('state').then((state) => {
-      console.log('got state:', state)
-      this.pods = state.pods
-    })
+    this.startInterval()
     // this.getState()
     // this.interval = setInterval(() => this.getState(), 1000)
   },
@@ -100,4 +118,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+table {
+  td:first-child {
+    padding-left: 5px;
+  }
+  td:not(:first-child) {
+    text-align: center;
+  }
+  input[type="checkbox"] {
+    height: unset !important;
+    margin: 0;
+  }
+}
+
+$statusSize: 12px;
+i.status {
+  width: $statusSize * 2.6;
+  height: $statusSize;
+  background: #bbb;
+  display: inline-block;
+  border-radius: $statusSize / 3;
+
+  &.online {
+    background: #1c2;
+  }
+  &.offline {
+    background: #f00;
+  }
+}
 </style>
