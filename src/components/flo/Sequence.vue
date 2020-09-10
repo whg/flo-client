@@ -198,10 +198,10 @@ export default {
   margin: 0px 10px;
 
   header {
+    margin-left: 135px;
     margin-bottom: 5px;
-    text-align: right;
     input[type="text"] {
-      width: 200px;
+      width: 77%;
       margin-left: 10px;
     }
   }

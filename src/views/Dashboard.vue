@@ -1,7 +1,6 @@
 <template lang="html">
 <div class="">
   <h2>Pods</h2>
-  {{ pods }}
   {{ JSON.stringify(runningSequences) }}
   <table>
     <thead>
@@ -26,8 +25,15 @@
         <!-- <td>
              {{ pod.enabled ? '✓' : '-' }}
              </td> -->
-        <td @click="togglePower(pod)">Power {{ pod.on ? 'off' : 'on' }}</td>
-        <td @click="selectedPod = pod">edit</td>
+        <td>
+          <button :disabled="runningSequences.length > 0" @click="togglePower(pod)">
+            Power {{ pod.on ? 'off' : 'on' }}
+          </button>
+        </td>
+        <td>
+          <spinner v-if="selectedPod === pod && !selectedPod.settings" />
+          <a v-else @click="selectPod(pod)">edit</a>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -37,22 +43,47 @@
     <span @click="powerPod(selectedPod, true)">Power on</span>
     <span @click="powerPod(selectedPod, false)">Power off</span>
   </div>
+
+  <modal v-if="selectedPod && selectedPod.settings" @close="selectedPod = null" class="settings">
+    <h5>Pod {{ selectedPod.channel }}</h5>
+    <table v-if="selectedPod.settings">
+      <tr v-for="setting in selectedPod.settings" :key="setting.param">
+        <td>
+          {{ settingName(setting) }}
+        </td>
+        <td class="adjust">
+          <input type="number" v-model="setting.value" @change="updateSetting(setting)" />
+          <span class="pointer" @click="setting.value--; updateSetting(setting)">-</span>
+          <span class="pointer" @click="setting.value++; updateSetting(setting)">+</span>
+        </td>
+      </tr>
+    </table>
+    <div class="buttons">
+      <button class="secondary" @click="revertSettings">revert</button>
+      <button class="primary" @click="selectedPod = null">apply</button>
+    </div>
+  </modal>
 </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
 import Spinner from '@/components/util/Spinner.vue'
+import Modal from '@/components/util/Modal.vue'
+import { vocabMap } from '@/vocab'
 
 export default {
   components: {
-    Spinner
+    Spinner,
+    Modal
   },
   data() {
     return {
       pods: {},
       interval: null,
-      selectedPod: null
+      selectedPod: null,
+      cachedSettings: null,
+      changedSettings: null
     }
   },
   computed: {
@@ -104,6 +135,46 @@ export default {
         }
       }
       return 'notenabled'
+    },
+    selectPod(pod) {
+      this.selectedPod = pod
+      this.floRequest({
+        command: 'podSettings',
+        args: {
+          channel: pod.channel
+        }
+      }).then((settings) => {
+        this.selectedPod.settings = settings
+        this.cachedSettings = JSON.parse(JSON.stringify(settings))
+        this.changedSettings = {}
+      })
+    },
+    settingName(setting) {
+      return this.toTitle(vocabMap[setting.param])
+    },
+    updateSetting(setting) {
+      const { channel } = this.selectedPod
+      const { param, value } = setting
+      this.floRequest({
+        command: 'updatePodSetting',
+        args: {
+          channel, param, value
+        }
+      })
+      this.changedSettings[param] = true
+    },
+    revertSettings() {
+      const { channel } = this.selectedPod
+      Object.keys(this.changedSettings).forEach((s) => {
+        const { param, value } = this.cachedSettings[s]
+        this.floRequest({
+          command: 'updatePodSetting',
+          args: {
+            channel, param, value
+          }
+        })
+      })
+      this.selectedPod = null
     }
   },
   created() {
@@ -146,4 +217,17 @@ i.status {
     background: #f00;
   }
 }
+
+.adjust {
+  input {
+    width: 5em;
+  }
+
+  span {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 10px;
+  }
+}
+
 </style>

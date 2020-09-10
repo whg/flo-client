@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/flo',
     name: 'flo',
-    component: () => import(/* webpackChunkName: "flo" */ './views/Flo.vue')
+    component: () => import(/* webpackChunkName: "flooo" */ './views/Flo.vue')
   },
   {
     path: '/log',

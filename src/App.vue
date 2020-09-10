@@ -1,10 +1,10 @@
 <template>
-<div id="app" @click="clicked">
-  <!-- <div id="nav"> -->
+  <div id="app" @click="clicked">
+    <!-- <div id="nav"> -->
     <!-- <router-link to="/">Home</router-link> | -->
-  <!-- </div> -->
-  <router-view/>
-</div>
+    <!-- </div> -->
+    <router-view/>
+  </div>
 </template>
 
 <script>

@@ -1,4 +1,3 @@
-
 import Vue from 'vue'
 import socketio from 'socket.io-client'
 import { camelToKebab, vocabMap, sameRequest, randomID } from '../util'

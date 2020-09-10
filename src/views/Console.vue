@@ -2,9 +2,8 @@
 <div class="fead">
   <h2><tt>fead</tt>Console</h2>
   <p class="power">
-    Power:
-    <a @click="power(1)">on</a>
-    <a @click="power(0)">off</a>
+    <button @click="power(1)">power on</button>
+    <button @click="power(0)">power off</button>
   </p>
   <p>
     <spinner v-if="requestingOnline"/>
