@@ -26,7 +26,7 @@ export const socketPlugin = ((socket) => {
       }
     })
   }
-})(socketio('http://192.168.43.16:3000'))
+})(socketio('http://flo.local:3000'))
 // })(socketio('http://192.168.1.158:3000'))
 // })(socketio('http://192.168.1.2:3000'))
 
@@ -53,21 +53,18 @@ export const flo = {
   },
   mutations: {
     socketConnect(state) {
-      console.log('connect')
+
     },
     socketSequences(state, sequences) {
       state.sequences = sequences
-      console.log('sequences', sequences)
     },
     socketInstances(state, instances) {
       state.instances = instances
     },
     socketGroups(state, groups) {
       state.groups = groups
-      console.log('g', groups)
     },
     socketVariables(state, v) {
-      console.log(v)
       state.variables = v
     },
     socketFeadRequest(state, payload) {
@@ -97,17 +94,14 @@ export const flo = {
       }
     },
     socketSequenceEnded(state, id) {
-      console.log('ended', id)
       const index = state.runningSequences.indexOf(id)
       if (id !== -1) {
         state.runningSequences.splice(index, 1)
-        console.log('removed', id, index, state.runningSequences)
       }
     },
     socketRunning(state, payload) {
       const { id } = payload
       Vue.set(state.runPoints, id, payload)
-      console.log('running', id, payload)
       if (!state.runningSequences.includes(id)) {
         state.runningSequences.push(id)
       }
@@ -118,14 +112,9 @@ export const flo = {
       setTimeout(() => {
         state.message = null
       }, 2000)
-      console.log('updated message', payload)
     },
     socketLog(state, line) {
       state.log.unshift(line)
-    },
-    socketState(state, payload) {
-      state.state = payload
-      console.log('state =', payload)
     },
     socketNotification(state, payload) {
       console.log('got notification', payload)
@@ -189,5 +178,8 @@ export const flo = {
     // socketPod() {},
     // socketState() {},
     // socketControl() {}
+  },
+  getters: {
+    allowRequest: state => state.runningSequences.filter(s => s.match(/system/i)).length === 0
   }
 }

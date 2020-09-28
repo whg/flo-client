@@ -1,6 +1,23 @@
 <template lang="html">
 <div class="">
-  <h2>Pods</h2>
+  <h3>Power</h3>
+  {{ addresses }}
+  <table>
+    <thead>
+      <th>Address</th>
+      <th>Target</th>
+      <th>Last contact</th>
+    </thead>
+    <tbody>
+      <tr v-for="obj in addresses" :key="obj.address">
+        <td>{{ obj.address }}</td>
+        <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
+        <td>{{ lastContacts[obj.address] }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Pods</h3>
   {{ JSON.stringify(runningSequences) }}
   <table>
     <thead>
@@ -26,13 +43,14 @@
              {{ pod.enabled ? '✓' : '-' }}
              </td> -->
         <td>
-          <button :disabled="runningSequences.length > 0" @click="togglePower(pod)">
+          <button :disabled="!allowRequest" @click="togglePower(pod)">
             Power {{ pod.on ? 'off' : 'on' }}
           </button>
         </td>
         <td>
           <spinner v-if="selectedPod === pod && !selectedPod.settings" />
-          <a v-else @click="selectPod(pod)">edit</a>
+          <a v-else-if="pod.on" @click="selectPod(pod)">edit</a>
+          <span v-else class="grayed">edit</span>
         </td>
       </tr>
     </tbody>
@@ -67,7 +85,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 import Spinner from '@/components/util/Spinner.vue'
 import Modal from '@/components/util/Modal.vue'
 import { vocabMap } from '@/vocab'
@@ -80,13 +98,17 @@ export default {
   data() {
     return {
       pods: {},
-      interval: null,
+      addresses: [],
+      stateInterval: null,
+      contactInterval: null,
       selectedPod: null,
       cachedSettings: null,
-      changedSettings: null
+      changedSettings: null,
+      lastContacts: {}
     }
   },
   computed: {
+    ...mapGetters('flo', ['allowRequest']),
     ...mapState('flo', ['runningSequences'])
     // ...mapState('flo', ['state']),
     // ...mapState('flo', {
@@ -106,13 +128,26 @@ export default {
       // sendControl: 'socketControl',
       // run: 'socketRun'
     }),
-    startInterval() {
-      clearTimeout(this.interval)
+    startStateInterval() {
+      clearTimeout(this.stateInterval)
       this.floRequest('state').then((state) => {
         this.pods = state.pods
-        this.interval = setTimeout(() => {
-          this.startInterval()
+        this.addresses = state.addresses
+        this.stateInterval = setTimeout(() => {
+          this.startStateInterval()
         }, 1000)
+      })
+    },
+    startContactInterval() {
+      clearTimeout(this.contactInterval)
+      this.floRequest('lastContact').then((data) => {
+        Object.entries(data).forEach(([addr, t]) => {
+          const d = new Date(t)
+          this.lastContacts[addr] = `${d.toLocaleTimeString()} ${d.toLocaleDateString()}`
+        })
+        this.contactInterval = setTimeout(() => {
+          this.startContactInterval()
+        }, 5000)
       })
     },
     togglePower(pod) {
@@ -178,7 +213,8 @@ export default {
     }
   },
   created() {
-    this.startInterval()
+    this.startStateInterval()
+    this.startContactInterval()
     // this.getState()
     // this.interval = setInterval(() => this.getState(), 1000)
   },
@@ -227,6 +263,14 @@ i.status {
     font-size: 20px;
     font-weight: bold;
     padding: 0 10px;
+  }
+}
+
+.grayed {
+  color: #aaa;
+  opacity: 0.5;
+  &:hover {
+    cursor: not-allowed;
   }
 }
 

@@ -22,7 +22,7 @@ Vue.mixin({
     randomID: () => Math.random().toString(16).slice(2),
     toTitle: (t) => {
       const s = t.replace('_', ' ')
-      return s[0] + s.substr(1).toLowerCase()
+      return s[0].toUpperCase() + s.substr(1).toLowerCase()
     }
   }
 })
