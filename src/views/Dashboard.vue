@@ -21,8 +21,8 @@
   {{ JSON.stringify(runningSequences) }}
   <table>
     <thead>
-      <th>Channel</th>
-      <th>UID</th>
+      <th>Branch</th>
+      <th>Pod</th>
       <th>Status</th>
       <th></th>
       <!-- <th>Enabled</th> -->
