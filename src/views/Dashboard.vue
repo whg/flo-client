@@ -24,7 +24,9 @@
       <th>Branch</th>
       <th>Pod</th>
       <th>Status</th>
-      <th></th>
+      <th>Power</th>
+      <th>Settings</th>
+      <th>Test</th>
       <!-- <th>Enabled</th> -->
       <!-- <th>Squeezes / hour</th> -->
       <!-- <th>Bubbles / hour</th> -->
@@ -34,23 +36,26 @@
       <tr v-for="pod in pods" :key="pod.channel">
         <td>{{ pod.channel }}</td>
         <td>{{ pod.uid || '-' }}</td>
-        <td>
+        <td class="center">
           <i v-if="!pod.on" class="status offline"></i>
           <spinner v-else-if="pod.on && !pod.uid" />
           <i v-else-if="pod.on && pod.uid" class="status online"></i>
         </td>
-        <!-- <td>
-             {{ pod.enabled ? '✓' : '-' }}
-             </td> -->
         <td>
           <button :disabled="!allowRequest" @click="togglePower(pod)">
-            Power {{ pod.on ? 'off' : 'on' }}
+            <fai name="power-off" />
+            {{ pod.on ? 'off' : 'on' }}
           </button>
         </td>
-        <td>
-          <spinner v-if="selectedPod === pod && !selectedPod.settings" />
-          <a v-else-if="pod.on" @click="selectPod(pod)">edit</a>
-          <span v-else class="grayed">edit</span>
+        <td class="center">
+          <span class="pointer" @click="selectPod(pod, 'settings')">
+            <fai name="cog" />
+          </span>
+        </td>
+        <td class="center">
+          <span class="pointer" @click="selectPod(pod, 'test')">
+            <fai name="vial" />
+          </span>
         </td>
       </tr>
     </tbody>
@@ -62,25 +67,81 @@
     <span @click="powerPod(selectedPod, false)">Power off</span>
   </div>
 
-  <modal v-if="selectedPod && selectedPod.settings" @close="selectedPod = null" class="settings">
-    <h5>Pod {{ selectedPod.channel }}</h5>
+  <modal v-if="selectedPod && selectedPod.window === 'settings'"
+         @close="selectedPod = null" class="pod-modal">
+    <h4>Branch {{ selectedPod.channel }}
+      <span v-if="selectedPod.uid" class="pod-no">Pod {{ selectedPod.uid }}</span>
+    </h4>
     <table v-if="selectedPod.settings">
       <tr v-for="setting in selectedPod.settings" :key="setting.param">
         <td>
           {{ settingName(setting) }}
         </td>
         <td class="adjust">
+          <span class="pointer" @click="setting.value--; updateSetting(setting)">
+            <fai name="minus" />
+          </span>
           <input type="number" v-model="setting.value" @change="updateSetting(setting)" />
-          <span class="pointer" @click="setting.value--; updateSetting(setting)">-</span>
-          <span class="pointer" @click="setting.value++; updateSetting(setting)">+</span>
+          <span class="pointer" @click="setting.value++; updateSetting(setting)">
+            <fai name="plus" />
+          </span>
         </td>
       </tr>
     </table>
-    <div class="buttons">
-      <button class="secondary" @click="revertSettings">revert</button>
-      <button class="primary" @click="selectedPod = null">apply</button>
+    <div v-else class="no-table">
+      <spinner v-if="selectedPod.on"></spinner>
+      <span v-else>No Pod</span>
+    </div>
+    <div v-if="selectedPod.settings" class="end-buttons">
+      <button class="danger" @click="revertSettings">
+        <fai name="history" />
+        revert
+      </button>
+      <button class="primary" @click="selectedPod = null">
+        <fai name="check" />
+        apply
+      </button>
     </div>
   </modal>
+  <modal v-if="selectedPod && selectedPod.window === 'test'"
+         @close="selectedPod = null" class="pod-modal">
+    <h4>Branch {{ selectedPod.channel }}
+      <span v-if="selectedPod.uid" class="pod-no">Pod {{ selectedPod.uid }}</span>
+    </h4>
+    <div>
+      <div class="buttons">
+        <button class="test" @click="controlPod('testWater')">send water</button>
+        <button class="test" @click="controlPod('testSoap')">send soap</button>
+      </div>
+      <div v-if="selectedPod.on">
+        <div class="buttons">
+          <button @click="controlPod('blow')">blow</button>
+          <button @click="controlPod('squeeze')">squeeze</button>
+        </div>
+        <div class="test-request">
+          <button :class="{ stop: testRequesting === 'waterLevel' }"
+                  @click="togglePodRequest('waterLevel')">
+            request water level
+          </button>
+          <span>{{ testRequests.waterLevel }}</span>
+        </div>
+        <div class="test-request">
+          <button :class="{ stop: testRequesting === 'sensor' }"
+                  @click="togglePodRequest('sensor')">
+            test bubble sensor
+          </button>
+          <span>
+            <fai v-if="testRequests.sensor === 'not-over'" name="regular/circle" />
+            <fai v-if="testRequests.sensor === 'over'" name="circle" />
+          </span>
+        </div>
+      </div>
+      <div v-else class="no-table">
+        <span>No Pod</span>
+      </div>
+    </div>
+  </modal>
+  {{ pods  }}
 </div>
 </template>
 
@@ -104,30 +165,28 @@ export default {
       selectedPod: null,
       cachedSettings: null,
       changedSettings: null,
-      lastContacts: {}
+      lastContacts: {},
+      testRequesting: null,
+      testRequests: {
+        waterLevel: null,
+        sensor: null,
+        interval: null
+      }
     }
   },
   computed: {
     ...mapGetters('flo', ['allowRequest']),
     ...mapState('flo', ['runningSequences'])
-    // ...mapState('flo', ['state']),
-    // ...mapState('flo', {
-    //   pods: (store) => {
-    //     const { pods } = store.state
-    //     if (pods) {
-    //       return Object.values(store.state.pods).sort((a, b) => a.channel - b.channel)
-    //     }
-    //     return []
-    //   }
-    // })
+  },
+  watch: {
+    selectedPod() {
+      if (this.testRequesting) {
+        this.togglePodRequest(this.testRequesting)
+      }
+    }
   },
   methods: {
     ...mapActions('flo', ['floRequest']),
-    ...mapActions('flo', {
-      // getState: 'socketState',
-      // sendControl: 'socketControl',
-      // run: 'socketRun'
-    }),
     startStateInterval() {
       clearTimeout(this.stateInterval)
       this.floRequest('state').then((state) => {
@@ -171,21 +230,27 @@ export default {
       }
       return 'notenabled'
     },
-    selectPod(pod) {
-      this.selectedPod = pod
-      this.floRequest({
-        command: 'podSettings',
-        args: {
-          channel: pod.channel
-        }
-      }).then((settings) => {
-        this.selectedPod.settings = settings
-        this.cachedSettings = JSON.parse(JSON.stringify(settings))
-        this.changedSettings = {}
-      })
+    selectPod(pod, window) {
+      this.selectedPod = { ...pod, window }
+      if (this.selectedPod.on) {
+        this.floRequest({
+          command: 'podSettings',
+          args: {
+            channel: pod.channel
+          }
+        }).then((settings) => {
+          this.$set(this.selectedPod, 'settings', settings)
+          this.cachedSettings = JSON.parse(JSON.stringify(settings))
+          this.changedSettings = {}
+        })
+      }
     },
     settingName(setting) {
-      return this.toTitle(vocabMap[setting.param])
+      let name = this.toTitle(vocabMap[setting.param])
+      if (name === 'Duty cycle') {
+        name = 'Soap duty'
+      }
+      return name
     },
     updateSetting(setting) {
       const { channel } = this.selectedPod
@@ -197,6 +262,15 @@ export default {
         }
       })
       this.changedSettings[param] = true
+    },
+    controlPod(func) {
+      const { channel } = this.selectedPod
+      this.floRequest({
+        command: 'controlPod',
+        args: {
+          channel, func
+        }
+      })
     },
     revertSettings() {
       const { channel } = this.selectedPod
@@ -210,6 +284,28 @@ export default {
         })
       })
       this.selectedPod = null
+    },
+    togglePodRequest(test) {
+      if (this.testRequesting === test) {
+        clearInterval(this.testRequests.interval)
+        this.$set(this.testRequests, this.testRequesting, null)
+        this.testRequesting = null
+      } else {
+        this.testRequesting = test
+        this.testRequests.interval = setInterval(() => {
+          this.floRequest({
+            command: 'testPodRequest',
+            args: {
+              channel: this.selectedPod.channel,
+              test
+            }
+          }).then((value) => {
+            if (this.testRequesting) {
+              this.$set(this.testRequests, test, value)
+            }
+          })
+        }, 250)
+      }
     }
   },
   created() {
@@ -225,19 +321,74 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-table {
-  td:first-child {
-    padding-left: 5px;
+
+.pod-modal {
+  table {
+    th {
+      text-align: left;
+      font-size: 2rem;
+      color: #333;
+    }
+
+    td:first-child {
+      padding-left: 5px;
+    }
+    td:not(:first-child) {
+      text-align: center;
+    }
+    td {
+      padding: 10px;
+      button {
+        width: 100%;
+      }
+    }
+
+    input[type="checkbox"] {
+      height: unset !important;
+      margin: 0;
+    }
   }
-  td:not(:first-child) {
+
+  .no-table {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+  }
+
+  .pod-no {
+    color: #888;
+    font-size: 20px;
+    padding-left: 10px;
+  }
+
+  .buttons {
     text-align: center;
+    /* margin-bottom: 20px; */
+    button {
+      margin: 0 10px 20px 10px;
+    }
   }
-  input[type="checkbox"] {
-    height: unset !important;
-    margin: 0;
+
+  .test-request {
+    margin-bottom: 20px;
+    span {
+      font-weight: bold;
+      margin-left: 10px;
+      svg {
+        width: 20px;
+        height: 20px;
+        margin-bottom: -4px;
+      }
+    }
+  }
+
+  .end-buttons {
+    display: flex;
+    justify-content: space-between;
   }
 }
-
 $statusSize: 12px;
 i.status {
   width: $statusSize * 2.6;
@@ -272,6 +423,15 @@ i.status {
   &:hover {
     cursor: not-allowed;
   }
+}
+
+button svg.fa-icon {
+  margin-bottom: -2px;
+  margin-right: 4px;
+}
+
+.fa-icon {
+  color: #555;
 }
 
 </style>

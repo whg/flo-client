@@ -1,16 +1,13 @@
 import Vue from 'vue'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Icon from 'vue-awesome/components/Icon'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import './icons'
 
 Vue.config.productionTip = false
 
-library.add(faUserSecret)
-
-Vue.component('fai', FontAwesomeIcon)
+Vue.component('fai', Icon)
 
 Vue.mixin({
   methods: {

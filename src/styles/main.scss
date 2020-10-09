@@ -69,9 +69,8 @@ hr {
 
 //
 button.primary {
-  border: none;
-  color: #fff;
-  background: #0a9;
+  // border: 1px solid #ccc;
+  // background: #bfd;
 }
 
 button.secondary {
@@ -80,6 +79,22 @@ button.secondary {
   color: #fff;
 }
 
+button.danger {
+}
+
+button.test {
+}
+
+button.stop {
+  border-color: #f00;
+  border-width: 2px;
+  color: #c00;
+}
+
 .pointer:hover {
   cursor: pointer;
+}
+
+.center {
+  text-align: center !important;
 }

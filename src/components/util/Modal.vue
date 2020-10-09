@@ -28,10 +28,12 @@
     /* position: relative; */
     background: #fff;
     /* width: 640px; */
+    padding: 20px;
 
     span.close {
       position: absolute;
-      right: 10px;
+      right: 15px;
+      top: 6px;
       font-size: 25px;
       &:hover {
         cursor: pointer;
@@ -40,11 +42,6 @@
 
     .content {
       padding: 20px;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: space-between;
     }
   }
 }
