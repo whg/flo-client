@@ -1,9 +1,17 @@
+html {
+  font-size: 100%;
+}
+
 input, select, button {
   margin: 0 2px;
-  height: 28px !important;
   padding: 0;
   padding-left: 5px;
   line-height: unset;
+  font-size: 1rem;
+}
+
+table {
+  margin: 0 auto;
 }
 
 select {
@@ -68,27 +76,28 @@ hr {
 // }
 
 //
-button.primary {
-  // border: 1px solid #ccc;
-  // background: #bfd;
-}
+button {
 
-button.secondary {
-  border: none;
-  background: #999;
-  color: #fff;
-}
+	&.primary {
+	}
 
-button.danger {
-}
+	&.secondary {
+		border: none;
+		background: #999;
+		color: #fff;
+	}
 
-button.test {
-}
+	&.danger {
+	}
 
-button.stop {
-  border-color: #f00;
-  border-width: 2px;
-  color: #c00;
+	&.test {
+	}
+
+	&.stop {
+		border-color: #f00;
+		border-width: 2px;
+		color: #c00;
+	}
 }
 
 .pointer:hover {
@@ -97,4 +106,9 @@ button.stop {
 
 .center {
   text-align: center !important;
+}
+
+svg.fa-icon {
+  width: 1.3rem;
+  height: 1.3rem;
 }

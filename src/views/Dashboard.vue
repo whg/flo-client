@@ -1,7 +1,6 @@
 <template lang="html">
 <div class="">
   <h3>Power</h3>
-  {{ addresses }}
   <table>
     <thead>
       <th>Address</th>
@@ -18,7 +17,6 @@
   </table>
 
   <h3>Pods</h3>
-  {{ JSON.stringify(runningSequences) }}
   <table>
     <thead>
       <th>Branch</th>
@@ -72,6 +70,9 @@
     <h4>Branch {{ selectedPod.channel }}
       <span v-if="selectedPod.uid" class="pod-no">Pod {{ selectedPod.uid }}</span>
     </h4>
+    <div class="buttons">
+      <button @click="controlPod('squeeze')">squeeze</button>
+    </div>
     <table v-if="selectedPod.settings">
       <tr v-for="setting in selectedPod.settings" :key="setting.param">
         <td>
@@ -111,7 +112,10 @@
     <div>
       <div class="buttons">
         <button class="test" @click="controlPod('testWater')">send water</button>
-        <button class="test" @click="controlPod('testSoap')">send soap</button>
+      </div>
+      <div class="buttons">
+        <button class="test" @click="controlPod('testSoapOn')">start soap</button>
+        <button class="test" @click="controlPod('testSoapOff')">stop soap</button>
       </div>
       <div v-if="selectedPod.on">
         <div class="buttons">
@@ -141,7 +145,6 @@
       </div>
     </div>
   </modal>
-  {{ pods  }}
 </div>
 </template>
 

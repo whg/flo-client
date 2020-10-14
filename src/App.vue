@@ -34,6 +34,8 @@ export default {
 <style lang="scss">
 
 #app {
+  text-align: center;
+
   input[type="text"] {
     width: 90px;
     padding: 0px;

@@ -2,6 +2,7 @@ export const vocab = {
   LED: 0,
   WRITE_DEFAULTS: 1,
   DISCOVER: 2,
+  STATE: 3,
   SERVO_OFFSET: 10,
   SERVO_SEPARATION: 11,
   FAN_LEVEL: 12,
@@ -10,13 +11,14 @@ export const vocab = {
   SQUEEZE_SLEEP: 15,
   NO_BUBBLE_THRESHOLD: 16,
   NO_BUBBLE_TIMEOUT: 17,
-  WATER_LEVEL: 18,
-  BUBBLE_COUNT: 19,
-  SQUEEZE_COUNT: 20,
-  BLOW_COUNT: 21,
-  BUBBLE_DISTANCE: 22,
-  SQUEEZE: 23,
-  BLOW: 24,
+  SEND_UPDATES: 18,
+  WATER_LEVEL: 19,
+  BUBBLE_COUNT: 20,
+  SQUEEZE_COUNT: 21,
+  BLOW_COUNT: 22,
+  BUBBLE_DISTANCE: 23,
+  SQUEEZE: 24,
+  BLOW: 25,
   TYPE: 40,
   ON_DURATION: 41,
   DUTY_CYCLE: 42,
@@ -29,6 +31,7 @@ export const vocabMap = {
   0: 'LED',
   1: 'WRITE_DEFAULTS',
   2: 'DISCOVER',
+  3: 'STATE',
   10: 'SERVO_OFFSET',
   11: 'SERVO_SEPARATION',
   12: 'FAN_LEVEL',
@@ -37,13 +40,14 @@ export const vocabMap = {
   15: 'SQUEEZE_SLEEP',
   16: 'NO_BUBBLE_THRESHOLD',
   17: 'NO_BUBBLE_TIMEOUT',
-  18: 'WATER_LEVEL',
-  19: 'BUBBLE_COUNT',
-  20: 'SQUEEZE_COUNT',
-  21: 'BLOW_COUNT',
-  22: 'BUBBLE_DISTANCE',
-  23: 'SQUEEZE',
-  24: 'BLOW',
+  18: 'SEND_UPDATES',
+  19: 'WATER_LEVEL',
+  20: 'BUBBLE_COUNT',
+  21: 'SQUEEZE_COUNT',
+  22: 'BLOW_COUNT',
+  23: 'BUBBLE_DISTANCE',
+  24: 'SQUEEZE',
+  25: 'BLOW',
   40: 'TYPE',
   41: 'ON_DURATION',
   42: 'DUTY_CYCLE',
@@ -81,6 +85,9 @@ export const vocabMeta = {
     count: 0
   },
   DISCOVER: {
+    count: 0
+  },
+  STATE: {
     count: 0
   },
   SERVO_OFFSET: {
@@ -126,6 +133,12 @@ export const vocabMeta = {
     ]
   },
   NO_BUBBLE_TIMEOUT: {
+    count: 1,
+    types: [
+      'int'
+    ]
+  },
+  SEND_UPDATES: {
     count: 1,
     types: [
       'int'
