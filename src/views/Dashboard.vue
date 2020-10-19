@@ -1,69 +1,71 @@
 <template lang="html">
 <div class="">
-  <h3>Power</h3>
-  <table>
-    <thead>
-      <th>Address</th>
-      <th>Target</th>
-      <th>Last contact</th>
-    </thead>
-    <tbody>
-      <tr v-for="obj in addresses" :key="obj.address">
-        <td>{{ obj.address }}</td>
-        <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
-        <td>{{ lastContacts[obj.address] }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Pods</h3>
-  <table>
-    <thead>
-      <th>Branch</th>
-      <th>Pod</th>
-      <th>Status</th>
-      <th>Power</th>
-      <th>Settings</th>
-      <th>Test</th>
-      <!-- <th>Enabled</th> -->
-      <!-- <th>Squeezes / hour</th> -->
-      <!-- <th>Bubbles / hour</th> -->
-      <th></th>
-    </thead>
-    <tbody>
-      <tr v-for="pod in pods" :key="pod.channel">
-        <td>{{ pod.channel }}</td>
-        <td>{{ pod.uid || '-' }}</td>
-        <td class="center">
-          <i v-if="!pod.on" class="status offline"></i>
-          <spinner v-else-if="pod.on && !pod.uid" />
-          <i v-else-if="pod.on && pod.uid" class="status online"></i>
-        </td>
-        <td>
-          <button :disabled="!allowRequest" @click="togglePower(pod)">
-            <fai name="power-off" />
-            {{ pod.on ? 'off' : 'on' }}
-          </button>
-        </td>
-        <td class="center">
-          <span class="pointer" @click="selectPod(pod, 'settings')">
-            <fai name="cog" />
-          </span>
-        </td>
-        <td class="center">
-          <span class="pointer" @click="selectPod(pod, 'test')">
-            <fai name="vial" />
-          </span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div v-if="selectedPod" class="">
-    <h3>{{ selectedPod }}</h3>
-    <span @click="powerPod(selectedPod, true)">Power on</span>
-    <span @click="powerPod(selectedPod, false)">Power off</span>
+  <div v-if="isRunning === null">
+    Not connected
   </div>
+  <div v-else-if="isRunning === false">
+    <button @click="setRunning('start')">Start</button>
+  </div>
+  <template v-else-if="isRunning">
+    <h3>Pods</h3>
+    <table>
+      <thead>
+        <th>Branch</th>
+        <th>Pod</th>
+        <th>Status</th>
+        <th>Power</th>
+        <th>Settings</th>
+        <th>Test</th>
+      </thead>
+      <tbody>
+        <tr v-for="pod in pods" :key="pod.channel">
+          <td>{{ pod.channel }}</td>
+          <td>{{ pod.uid || '-' }}</td>
+          <td class="center">
+            <i v-if="!pod.on" class="status offline"></i>
+            <spinner v-else-if="pod.on && !pod.uid" />
+            <i v-else-if="pod.on && pod.uid" class="status online"></i>
+          </td>
+          <td>
+            <button :disabled="!allowRequest" @click="togglePower(pod)">
+              <fai name="power-off" />
+              {{ pod.on ? 'off' : 'on' }}
+            </button>
+          </td>
+          <td class="center">
+            <span class="pointer" @click="selectPod(pod, 'settings')">
+              <fai name="cog" />
+            </span>
+          </td>
+          <td class="center">
+            <span class="pointer" @click="selectPod(pod, 'test')">
+              <fai name="vial" />
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="spaced" @click="showGlobalSettings = true">
+      <fai name="tools" />Global settings
+    </button>
+
+    <h3>Power</h3>
+    <table>
+      <thead>
+        <th>Address</th>
+        <th>Target</th>
+        <th>Last contact</th>
+      </thead>
+      <tbody>
+        <tr v-for="obj in addresses" :key="obj.address">
+          <td>{{ obj.address }}</td>
+          <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
+          <td>{{ lastContacts[obj.address] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </template>
 
   <modal v-if="selectedPod && selectedPod.window === 'settings'"
          @close="selectedPod = null" class="pod-modal">
@@ -145,6 +147,19 @@
       </div>
     </div>
   </modal>
+
+  <modal v-if="showGlobalSettings" class="pod-modal" @close="showGlobalSettings = false">
+    <h4>Global</h4>
+    <table>
+      <tr v-for="(_, name) in globalSettings" :key="name">
+        <td>{{ camelToTitle(name) }}</td>
+        <td class="adjust">
+          <input type="number" v-model="globalSettings[name]" @change="updateGlobal(name)" />
+        </td>
+      </tr>
+    </table>
+  </modal>
+
 </div>
 </template>
 
@@ -161,6 +176,7 @@ export default {
   },
   data() {
     return {
+      isRunning: null,
       pods: {},
       addresses: [],
       stateInterval: null,
@@ -174,6 +190,11 @@ export default {
         waterLevel: null,
         sensor: null,
         interval: null
+      },
+      showGlobalSettings: false,
+      globalSettings: {
+        fanSpeed: 100,
+        soapDuty: 0.015
       }
     }
   },
@@ -195,6 +216,7 @@ export default {
       this.floRequest('state').then((state) => {
         this.pods = state.pods
         this.addresses = state.addresses
+        this.isRunning = state.isRunning
         this.stateInterval = setTimeout(() => {
           this.startStateInterval()
         }, 1000)
@@ -210,6 +232,14 @@ export default {
         this.contactInterval = setTimeout(() => {
           this.startContactInterval()
         }, 5000)
+      })
+    },
+    setRunning(v) {
+      this.floRequest({
+        command: 'controlFlo',
+        args: {
+          command: v
+        }
       })
     },
     togglePower(pod) {
@@ -252,6 +282,10 @@ export default {
       let name = this.toTitle(vocabMap[setting.param])
       if (name === 'Duty cycle') {
         name = 'Soap duty'
+      } else if (name === ' Servo offset') {
+        name = 'Jaw alignment'
+      } else if (name === 'Fan level') {
+        name = 'Fan speed'
       }
       return name
     },
@@ -309,6 +343,16 @@ export default {
           })
         }, 250)
       }
+    },
+    updateGlobal(name) {
+      const value = this.globalSettings[name]
+      this.floRequest({
+        command: 'updateGlobal',
+        args: {
+          name,
+          value
+        }
+      })
     }
   },
   created() {
@@ -327,6 +371,8 @@ export default {
 
 .pod-modal {
   table {
+    margin-bottom: 30px;
+
     th {
       text-align: left;
       font-size: 2rem;
@@ -436,5 +482,9 @@ button svg.fa-icon {
 .fa-icon {
   color: #555;
 }
+
+.spaced {
+  margin: 50px;
+}j
 
 </style>

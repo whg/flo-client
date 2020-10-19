@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/flo',
     name: 'flo',
-    component: () => import(/* webpackChunkName: "flooo" */ './views/Flo.vue')
+    component: () => import(/* webpackChunkName: "flo" */ './views/Flo.vue')
   },
   {
     path: '/log',
@@ -37,7 +37,12 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import(/* webpackChunkName: "pods" */ './views/Dashboard.vue')
+    component: () => import(/* webpackChunkName: "dash" */ './views/Dashboard.vue')
+  },
+  {
+    path: '/maintain',
+    name: 'maintenance',
+    component: () => import(/* webpackChunkName: "maintain" */ './views/Maintenance.vue')
   }
 ]
 

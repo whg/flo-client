@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './icons'
+import * as util from './util'
 
 Vue.config.productionTip = false
 
@@ -19,6 +20,10 @@ Vue.mixin({
     randomID: () => Math.random().toString(16).slice(2),
     toTitle: (t) => {
       const s = t.replace('_', ' ')
+      return s[0].toUpperCase() + s.substr(1).toLowerCase()
+    },
+    camelToTitle: (t) => {
+      const s = util.camelToSpace(t)
       return s[0].toUpperCase() + s.substr(1).toLowerCase()
     }
   }
