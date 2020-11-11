@@ -3,12 +3,13 @@
   <div v-if="isRunning === null">
     Not connected
   </div>
-  <div v-else-if="isRunning === false">
-    <button @click="setRunning('start')">Start</button>
-  </div>
-  <template v-else-if="isRunning">
+  <template v-else>
+    <button v-if="isRunning === false"
+            class="start-stop" @click="setRunning('start')">Start</button>
+    <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
+
     <h3>Pods</h3>
-    <table>
+    <table class="pod-table">
       <thead>
         <th>Branch</th>
         <th>Pod</th>
@@ -22,7 +23,9 @@
           <td>{{ pod.channel }}</td>
           <td>{{ pod.uid || '-' }}</td>
           <td class="center">
-            <i v-if="!pod.on" class="status offline"></i>
+            <fai v-if="pod.status === 'unresponsive'" name="exclamation-triangle"
+                 @click="errorMessage = 'No response from pod'" />
+            <i v-else-if="!pod.on" class="status offline"></i>
             <spinner v-else-if="pod.on && !pod.uid" />
             <i v-else-if="pod.on && pod.uid" class="status online"></i>
           </td>
@@ -160,6 +163,10 @@
     </table>
   </modal>
 
+  <modal v-if="errorMessage" @close="errorMessage = null">
+    <p>{{ errorMessage }}</p>
+  </modal>
+
 </div>
 </template>
 
@@ -194,8 +201,9 @@ export default {
       showGlobalSettings: false,
       globalSettings: {
         fanSpeed: 100,
-        soapDuty: 0.015
-      }
+        soapDuty: 1.5
+      },
+      errorMessage: null
     }
   },
   computed: {
@@ -360,6 +368,12 @@ export default {
     this.startContactInterval()
     // this.getState()
     // this.interval = setInterval(() => this.getState(), 1000)
+    window.onkeydown = (e) => {
+      if (e && e.key === 'Escape') {
+        this.showGlobalSettings = false
+        this.selectPod = false
+      }
+    }
   },
   beforeDestroy() {
     // clearInterval(this.interval)
@@ -474,6 +488,12 @@ i.status {
   }
 }
 
+table.pod-table {
+  thead {
+    font-size: 1rem;
+  }
+}
+
 button svg.fa-icon {
   margin-bottom: -2px;
   margin-right: 4px;
@@ -485,6 +505,12 @@ button svg.fa-icon {
 
 .spaced {
   margin: 50px;
-}j
+}
+
+button.start-stop {
+  float: right;
+  font-size: 0.7rem;
+  height: 2rem;
+}
 
 </style>

@@ -99,6 +99,9 @@ export const flo = {
         state.runningSequences.splice(index, 1)
       }
     },
+    socketSequenceClear(state) {
+      state.runningSequences = []
+    },
     socketRunning(state, payload) {
       const { id } = payload
       Vue.set(state.runPoints, id, payload)
