@@ -29,6 +29,9 @@
     background: #fff;
     /* width: 640px; */
     padding: 20px;
+    @media (max-width: 700px) {
+      padding: 10px;
+    }
 
     span.close {
       position: absolute;
@@ -42,6 +45,13 @@
 
     .content {
       padding: 20px;
+      @media (max-width: 700px) {
+        padding: 5px;
+      }
+    }
+
+    p:last-child {
+      margin-bottom: 0;
     }
   }
 }

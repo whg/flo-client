@@ -26,7 +26,8 @@ export const socketPlugin = ((socket) => {
       }
     })
   }
-})(socketio('http://flo.local:3000'))
+// })(socketio('http://flo.local:3000'))
+})(socketio('http://192.168.43.16:3000'))
 // })(socketio('http://192.168.8.158:3000'))
 // })(socketio('http://192.168.8.198:3000')) // pi on GL.iNet routerj
 

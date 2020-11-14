@@ -1,15 +1,20 @@
 <template lang="html">
 <div class="">
-  <div v-if="isRunning === null">
+  <div v-if="isRunning === null" class="not-connected">
     Not connected
   </div>
   <template v-else>
-    <button v-if="isRunning === false"
-            class="start-stop" @click="setRunning('start')">Start</button>
-    <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
-
-    <h3>Pods</h3>
-    <table class="pod-table">
+    <header>
+      <h1>Bubble Tree</h1>
+      <span class="run-time">Running for {{ runningHours }} hours</span>
+      <button v-if="isRunning === false"
+              class="start-stop start" @click="setRunning('start')">Start</button>
+      <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
+    </header>
+    <div v-if="fault">
+      <h3>{{ fault }}</h3>
+    </div>
+    <table v-else class="pod-table">
       <thead>
         <th>Branch</th>
         <th>Pod</th>
@@ -24,7 +29,9 @@
           <td>{{ pod.uid || '-' }}</td>
           <td class="center">
             <fai v-if="pod.status === 'unresponsive'" name="exclamation-triangle"
-                 @click="errorMessage = 'No response from pod'" />
+                 @click="errorMessage = 'No response from pod'" :title="pod.status" />
+            <fai v-else-if="pod.status === 'leak-detected'" name="exclamation-triangle"
+                 @click="errorMessage = 'Leak condition detected, check water.'" :title="pod.status" />
             <i v-else-if="!pod.on" class="status offline"></i>
             <spinner v-else-if="pod.on && !pod.uid" />
             <i v-else-if="pod.on && pod.uid" class="status online"></i>
@@ -53,21 +60,23 @@
       <fai name="tools" />Global settings
     </button>
 
-    <h3>Power</h3>
-    <table>
-      <thead>
-        <th>Address</th>
-        <th>Target</th>
-        <th>Last contact</th>
-      </thead>
-      <tbody>
-        <tr v-for="obj in addresses" :key="obj.address">
-          <td>{{ obj.address }}</td>
-          <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
-          <td>{{ lastContacts[obj.address] }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-if="admin">
+      <h3>Power</h3>
+      <table>
+        <thead>
+          <th>Address</th>
+          <th>Target</th>
+          <th>Last contact</th>
+        </thead>
+        <tbody>
+          <tr v-for="obj in addresses" :key="obj.address">
+            <td>{{ obj.address }}</td>
+            <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
+            <td>{{ lastContacts[obj.address] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </template>
 
   <modal v-if="selectedPod && selectedPod.window === 'settings'"
@@ -75,7 +84,7 @@
     <h4>Branch {{ selectedPod.channel }}
       <span v-if="selectedPod.uid" class="pod-no">Pod {{ selectedPod.uid }}</span>
     </h4>
-    <div class="buttons">
+    <div v-if="selectedPod.settings" class="buttons">
       <button @click="controlPod('squeeze')">squeeze</button>
     </div>
     <table v-if="selectedPod.settings">
@@ -203,12 +212,20 @@ export default {
         fanSpeed: 100,
         soapDuty: 1.5
       },
-      errorMessage: null
+      errorMessage: null,
+      runningTimeSeconds: null,
+      fault: undefined
     }
   },
   computed: {
     ...mapGetters('flo', ['allowRequest']),
-    ...mapState('flo', ['runningSequences'])
+    ...mapState('flo', ['runningSequences']),
+    runningHours() {
+      if (this.runningTimeSeconds) {
+        return Math.floor(this.runningTimeSeconds / 60 / 60)
+      }
+      return null
+    }
   },
   watch: {
     selectedPod() {
@@ -225,6 +242,8 @@ export default {
         this.pods = state.pods
         this.addresses = state.addresses
         this.isRunning = state.isRunning
+        this.runningTimeSeconds = state.runningTime
+        this.fault = state.fault
         this.stateInterval = setTimeout(() => {
           this.startStateInterval()
         }, 1000)
@@ -371,7 +390,7 @@ export default {
     window.onkeydown = (e) => {
       if (e && e.key === 'Escape') {
         this.showGlobalSettings = false
-        this.selectPod = false
+        this.selectedPod = null
       }
     }
   },
@@ -382,6 +401,49 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+header {
+  display: flex;
+  justify-content: space-between;
+  background: #ddd;
+  align-items: center;
+  padding: 10px;
+  width: calc(100vw - 20px);
+
+  h1 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  span.run-time {
+    font-size: 1rem;
+  }
+
+  button.start-stop {
+    font-size: 0.7rem;
+    height: 2rem;
+    background: #333;
+    color: #eee;
+
+    &.start {
+      background: #fff;
+      color: #555;
+    }
+  }
+}
+
+table {
+  width: 100%;
+  max-width: 700px;
+  padding: 20px 10px;
+
+  th, td {
+    text-align: center;
+  }
+
+  th {
+    font-size: 0.8rem;
+  }
+}
 
 .pod-modal {
   table {
@@ -452,6 +514,7 @@ export default {
     justify-content: space-between;
   }
 }
+
 $statusSize: 12px;
 i.status {
   width: $statusSize * 2.6;
@@ -495,8 +558,7 @@ table.pod-table {
 }
 
 button svg.fa-icon {
-  margin-bottom: -2px;
-  margin-right: 4px;
+  height: 1rem;
 }
 
 .fa-icon {
@@ -504,13 +566,10 @@ button svg.fa-icon {
 }
 
 .spaced {
-  margin: 50px;
+  margin: 15px;
 }
 
-button.start-stop {
-  float: right;
-  font-size: 0.7rem;
-  height: 2rem;
+.not-connected {
+  margin-top: 20px;
 }
-
 </style>
