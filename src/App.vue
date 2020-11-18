@@ -32,6 +32,19 @@ export default {
 </script>
 
 <style lang="scss">
+@import "styles/skeleton";
+@import "styles/main";
+</style>
+
+<style lang="scss">
+body {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: Arial, sans-serif;
+  color: #222;
+}
 
 #app {
   text-align: center;

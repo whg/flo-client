@@ -32,6 +32,7 @@
                  @click="errorMessage = 'No response from pod'" :title="pod.status" />
             <fai v-else-if="pod.status === 'leak-detected'" name="exclamation-triangle"
                  @click="errorMessage = 'Leak condition detected, check water.'" :title="pod.status" />
+            <i v-else-if="!pod.enabled" class="status disabled"></i>
             <i v-else-if="!pod.on" class="status offline"></i>
             <spinner v-else-if="pod.on && !pod.uid" />
             <i v-else-if="pod.on && pod.uid" class="status online"></i>
@@ -84,8 +85,17 @@
     <h4>Branch {{ selectedPod.channel }}
       <span v-if="selectedPod.uid" class="pod-no">Pod {{ selectedPod.uid }}</span>
     </h4>
-    <div v-if="selectedPod.settings" class="buttons">
-      <button @click="controlPod('squeeze')">squeeze</button>
+    <div class="buttons">
+      <button v-if="selectedPod.enabled"
+              @click="controlPod('disable'); selectedPod.enabled = false; selectedPod.settings = null">
+        <fai name="regular/times-circle" />
+        disable
+      </button>
+      <button v-else @click="controlPod('enable'); selectedPod.enabled = true">
+        <fai name="regular/check-circle" />
+        enable
+      </button>
+      <button v-if="selectedPod.settings" @click="controlPod('squeeze')">squeeze</button>
     </div>
     <table v-if="selectedPod.settings">
       <tr v-for="setting in selectedPod.settings" :key="setting.param">
@@ -108,7 +118,7 @@
       <span v-else>No Pod</span>
     </div>
     <div v-if="selectedPod.settings" class="end-buttons">
-      <button class="danger" @click="revertSettings">
+      <button class="warning" @click="revertSettings">
         <fai name="history" />
         revert
       </button>
@@ -192,6 +202,7 @@ export default {
   },
   data() {
     return {
+      admin: false,
       isRunning: null,
       pods: {},
       addresses: [],
@@ -277,18 +288,6 @@ export default {
           value: !pod.on
         }
       })
-    },
-    podStatus(pod) {
-      if (pod.enabled) {
-        if (pod.address) {
-          return 'online'
-        } else if (pod.on) {
-          return 'registering'
-        } else {
-          return 'offline'
-        }
-      }
-      return 'notenabled'
     },
     selectPod(pod, window) {
       this.selectedPod = { ...pod, window }
@@ -528,6 +527,10 @@ i.status {
   }
   &.offline {
     background: #f00;
+  }
+  &.disabled {
+    border: 1px solid #ccc;
+    background: #fff;
   }
 }
 
