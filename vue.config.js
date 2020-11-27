@@ -1,7 +1,10 @@
+const webpack = require('webpack')
 const analyzer = require('webpack-bundle-analyzer');
 const PurgecssPlugin = require('purgecss-webpack-plugin');
 const glob = require('glob-all');
 const path = require('path');
+
+process.env.VUE_APP_VERSION = process.env.npm_package_version
 
 module.exports = {
   configureWebpack: {

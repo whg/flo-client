@@ -12,7 +12,7 @@
       <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
     </header>
     <div v-if="fault">
-      <h3>{{ fault }}</h3>
+      <h3 class="fault">{{ fault }}</h3>
     </div>
     <table v-else class="pod-table">
       <thead>
@@ -95,7 +95,10 @@
         <fai name="regular/check-circle" />
         enable
       </button>
-      <button v-if="selectedPod.settings" @click="controlPod('squeeze')">squeeze</button>
+      <button v-if="selectedPod.settings"
+              :disabled="!allowRequest" @click="controlPod('squeeze')">
+        squeeze
+      </button>
     </div>
     <table v-if="selectedPod.settings">
       <tr v-for="setting in selectedPod.settings" :key="setting.param">
@@ -176,7 +179,8 @@
       <tr v-for="(_, name) in globalSettings" :key="name">
         <td>{{ camelToTitle(name) }}</td>
         <td class="adjust">
-          <input type="number" v-model="globalSettings[name]" @change="updateGlobal(name)" />
+          <input type="number" v-model="globalSettings[name]" @change="updateGlobal(name)"
+                 max="255" min="0" />
         </td>
       </tr>
     </table>
@@ -371,6 +375,11 @@ export default {
       }
     },
     updateGlobal(name) {
+      if (name === 'soapDuty') {
+        this.globalSettings[name] = Math.max(0, Math.min(10, this.globalSettings[name]))
+      } else if (name === 'fanSpeed') {
+        this.globalSettings[name] = Math.max(0, Math.min(255, this.globalSettings[name]))
+      }
       const value = this.globalSettings[name]
       this.floRequest({
         command: 'updateGlobal',
@@ -574,5 +583,10 @@ button svg.fa-icon {
 
 .not-connected {
   margin-top: 20px;
+}
+
+h3.fault {
+  font-size: 1.5rem;
+  margin: 2rem;
 }
 </style>

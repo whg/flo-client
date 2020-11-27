@@ -1,8 +1,7 @@
 export const vocab = {
   LED: 0,
   WRITE_DEFAULTS: 1,
-  DISCOVER: 2,
-  STATE: 3,
+  STATE: 2,
   SERVO_OFFSET: 10,
   SERVO_SEPARATION: 11,
   FAN_LEVEL: 12,
@@ -30,8 +29,7 @@ export const vocab = {
 export const vocabMap = {
   0: 'LED',
   1: 'WRITE_DEFAULTS',
-  2: 'DISCOVER',
-  3: 'STATE',
+  2: 'STATE',
   10: 'SERVO_OFFSET',
   11: 'SERVO_SEPARATION',
   12: 'FAN_LEVEL',
@@ -82,9 +80,6 @@ export const vocabMeta = {
     ]
   },
   WRITE_DEFAULTS: {
-    count: 0
-  },
-  DISCOVER: {
     count: 0
   },
   STATE: {
