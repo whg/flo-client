@@ -26,10 +26,10 @@ export const socketPlugin = ((socket) => {
       }
     })
   }
-})(socketio('http://localhost:3000'))
+// })(socketio('http://localhost:3000'))
 // })(socketio('http://192.168.43.16:3000'))
 // })(socketio('http://192.168.8.158:3000'))
-// })(socketio('http://192.168.8.198:3000')) // pi on GL.iNet routerj
+})(socketio('http://192.168.8.198:3000')) // pi on GL.iNet routerj
 
 export const flo = {
   namespaced: true,
@@ -184,6 +184,6 @@ export const flo = {
     // socketControl() {}
   },
   getters: {
-    allowRequest: state => state.runningSequences.filter(s => s.match(/system/i)).length === 0
+    allowRequest: state => state.runningSequences.filter(s => s.match(/setup/i)).length === 0
   }
 }

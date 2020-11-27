@@ -32,6 +32,8 @@
                  @click="errorMessage = 'No response from pod'" :title="pod.status" />
             <fai v-else-if="pod.status === 'leak-detected'" name="exclamation-triangle"
                  @click="errorMessage = 'Leak condition detected, check water.'" :title="pod.status" />
+            <fai v-else-if="pod.status === 'discover-fail'" name="exclamation-triangle"
+                 @click="errorMessage = 'Unable to communicate with pod'" :title="pod.status" />
             <i v-else-if="!pod.enabled" class="status disabled"></i>
             <i v-else-if="!pod.on" class="status offline"></i>
             <spinner v-else-if="pod.on && !pod.uid" />
