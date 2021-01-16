@@ -40,7 +40,7 @@
             <i v-else-if="pod.on && pod.uid" class="status online"></i>
           </td>
           <td>
-            <button :disabled="!allowRequest" @click="togglePower(pod)">
+            <button :disabled="!isRunning || !allowRequest" @click="togglePower(pod)">
               <fai name="power-off" />
               {{ pod.on ? 'off' : 'on' }}
             </button>
@@ -189,7 +189,7 @@
   </modal>
 
   <modal v-if="errorMessage" @close="errorMessage = null">
-    <p>{{ errorMessage }}</p>
+    <p class="error-message">{{ errorMessage }}</p>
   </modal>
 
 </div>
@@ -591,4 +591,9 @@ h3.fault {
   font-size: 1.5rem;
   margin: 2rem;
 }
+
+p.error-message {
+  margin-top: 25px;
+}
+
 </style>

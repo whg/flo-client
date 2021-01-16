@@ -137,6 +137,7 @@ export default {
 #flo {
   max-width: 820px;
   margin: 0 auto;
+  text-align: left;
 }
 
 header {

@@ -18,6 +18,7 @@
       <option value="set">SET</option>
     </select>
     <select v-model="address">
+      <option value="0">0</option>
       <option v-for="slave in online" :key="slave.uid"
               :value="slave.address">
         {{ slave.address }}

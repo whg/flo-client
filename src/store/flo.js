@@ -27,9 +27,8 @@ export const socketPlugin = ((socket) => {
     })
   }
 // })(socketio('http://localhost:3000'))
-// })(socketio('http://192.168.43.16:3000'))
-// })(socketio('http://192.168.8.158:3000'))
-})(socketio('http://192.168.8.198:3000')) // pi on GL.iNet routerj
+// })(socketio('http://192.168.8.158:3000')) // Gladys on GL.iNet router
+})(socketio('http://192.168.8.222:3000')) // pi on GL.iNet router
 
 export const flo = {
   namespaced: true,

@@ -21,6 +21,8 @@ div.log {
   margin: 0 auto;
   font-family: Courier, monospace;
   font-size: 12px;
+  text-align: left;
+  padding: 15px;
   p {
     margin: 0;
   }

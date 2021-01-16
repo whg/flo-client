@@ -1,6 +1,6 @@
 <template lang="html">
-<div class="">
-  <div v-for="(variable, index) in list" :key="index" class="">
+<div class="variables">
+  <div v-for="(variable, index) in list" :key="index" class="variables-list">
     <input v-model="variable.key" type="text" ref="key" @blur="removeEmpty">
     <input v-model.number="variable.value" type="text">
   </div>
@@ -54,4 +54,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.variables-list {
+  input:first-child[type="text"] {
+    width: 150px !important;
+  }
+}
 </style>

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Flo from './views/Flo.vue'
 
 Vue.use(VueRouter)
 
@@ -12,7 +13,7 @@ const routes = [
   {
     path: '/flo',
     name: 'flo',
-    component: () => import(/* webpackChunkName: "flo" */ './views/Flo.vue')
+    component: Flo
   },
   {
     path: '/log',
