@@ -91,15 +91,17 @@
       <button v-if="selectedPod.enabled"
               @click="controlPod('disable'); selectedPod.enabled = false; selectedPod.settings = null">
         <fai name="regular/times-circle" />
-        disable
-      </button>
+        disable pod
+       </button>
       <button v-else @click="controlPod('enable'); selectedPod.enabled = true">
         <fai name="regular/check-circle" />
-        enable
+        enable pod
       </button>
+    </div>
+    <div class="buttons">
       <button v-if="selectedPod.settings"
               :disabled="!allowRequest" @click="controlPod('squeeze')">
-        squeeze
+        squeeze nozzle
       </button>
     </div>
     <table v-if="selectedPod.settings">
@@ -140,21 +142,21 @@
     </h4>
     <div>
       <div class="buttons">
-        <button class="test" @click="controlPod('testWater')">send water</button>
+        <button class="test water" @click="controlPod('testWater')">test water pump</button>
       </div>
       <div class="buttons">
-        <button class="test" @click="controlPod('testSoapOn')">start soap</button>
-        <button class="test" @click="controlPod('testSoapOff')">stop soap</button>
+        <button class="test soap" @click="controlPod('testSoapOn')">start soap pump</button>
+        <button class="test soap" @click="controlPod('testSoapOff')">stop soap pump</button>
       </div>
       <div v-if="selectedPod.on">
         <div class="buttons">
-          <button @click="controlPod('blow')">blow</button>
+          <button @click="controlPod('blow')">blow air</button>
           <button @click="controlPod('squeeze')">squeeze</button>
         </div>
         <div class="test-request">
           <button :class="{ stop: testRequesting === 'waterLevel' }"
                   @click="togglePodRequest('waterLevel')">
-            request water level
+            test water level
           </button>
           <span>{{ testRequests.waterLevel }}</span>
         </div>
@@ -186,6 +188,7 @@
         </td>
       </tr>
     </table>
+    <p>For soap duty to be remembered, change it in Flo variables</p>
   </modal>
 
   <modal v-if="errorMessage" @close="errorMessage = null">
@@ -503,6 +506,15 @@ table {
     /* margin-bottom: 20px; */
     button {
       margin: 0 10px 20px 10px;
+    }
+  }
+
+  .button {
+    &.water {
+      background: #aaf;
+    }
+    &.soap {
+      background: #ffc;
     }
   }
 
