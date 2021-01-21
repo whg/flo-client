@@ -6,9 +6,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    selectedElement: null
+    selectedElement: null,
+    admin: false
   },
   mutations: {
+    authenticate(state) {
+      state.admin = true
+    }
   },
   actions: {
   },

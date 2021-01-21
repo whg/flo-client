@@ -1,86 +1,64 @@
 <template lang="html">
 <div class="">
-  <div v-if="isRunning === null" class="not-connected">
-    Not connected
+  <header>
+    <h1>Bubble Tree</h1>
+    <span v-if="isConnected" class="run-time">Running for {{ runningHours }} hours</span>
+    <h1 v-if="isRunning === null">Not connected</h1>
+    <button v-else-if="isRunning === false"
+            class="start-stop start" @click="setRunning('start')">Start</button>
+    <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
+  </header>
+  <div v-if="fault">
+    <h3 class="fault">{{ fault }}</h3>
   </div>
-  <template v-else>
-    <header>
-      <h1>Bubble Tree</h1>
-      <span class="run-time">Running for {{ runningHours }} hours</span>
-      <button v-if="isRunning === false"
-              class="start-stop start" @click="setRunning('start')">Start</button>
-      <button v-else class="start-stop" @click="setRunning('stop')">Stop</button>
-    </header>
-    <div v-if="fault">
-      <h3 class="fault">{{ fault }}</h3>
-    </div>
-    <table v-else class="pod-table">
-      <thead>
-        <th>Branch</th>
-        <th>Pod</th>
-        <th>Status</th>
-        <th>Power</th>
-        <th>Settings</th>
-        <th>Test</th>
-      </thead>
-      <tbody>
-        <tr v-for="pod in pods" :key="pod.channel">
-          <td>{{ pod.channel }}</td>
-          <td>{{ pod.uid || '-' }}</td>
-          <td class="center">
-            <fai v-if="pod.status === 'unresponsive'" name="exclamation-triangle"
-                 @click="errorMessage = 'No response from pod'" :title="pod.status" />
-            <fai v-else-if="pod.status === 'leak-detected'" name="exclamation-triangle"
-                 @click="errorMessage = 'Leak condition detected, check water.'" :title="pod.status" />
-            <fai v-else-if="pod.status === 'discover-fail'" name="exclamation-triangle"
-                 @click="errorMessage = 'Unable to communicate with pod'" :title="pod.status" />
-            <i v-else-if="!pod.enabled" class="status disabled"></i>
-            <i v-else-if="!pod.on" class="status offline"></i>
-            <spinner v-else-if="pod.on && !pod.uid" />
-            <i v-else-if="pod.on && pod.uid" class="status online"></i>
-          </td>
-          <td>
-            <button :disabled="!isRunning || !allowRequest" @click="togglePower(pod)">
-              <fai name="power-off" />
-              {{ pod.on ? 'off' : 'on' }}
-            </button>
-          </td>
-          <td class="center">
-            <span class="pointer" @click="selectPod(pod, 'settings')">
-              <fai name="cog" />
-            </span>
-          </td>
-          <td class="center">
-            <span class="pointer" @click="selectPod(pod, 'test')">
-              <fai name="vial" />
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <table v-else-if="isRunning !== null" class="pod-table">
+    <thead>
+      <th>Branch</th>
+      <th>Pod</th>
+      <th>Status</th>
+      <th>Power</th>
+      <th>Settings</th>
+      <th>Test</th>
+    </thead>
+    <tbody>
+      <tr v-for="pod in pods" :key="pod.channel">
+        <td>{{ pod.channel }}</td>
+        <td>{{ pod.uid || '-' }}</td>
+        <td class="center">
+          <fai v-if="pod.status === 'unresponsive'" name="exclamation-triangle"
+               @click="errorMessage = 'No response from pod'" :title="pod.status" />
+          <fai v-else-if="pod.status === 'leak-detected'" name="exclamation-triangle"
+               @click="errorMessage = 'Leak condition detected, check water.'" :title="pod.status" />
+          <fai v-else-if="pod.status === 'discover-fail'" name="exclamation-triangle"
+               @click="errorMessage = 'Unable to communicate with pod'" :title="pod.status" />
+          <i v-else-if="!pod.enabled" class="status disabled"></i>
+          <i v-else-if="!pod.on" class="status offline"></i>
+          <spinner v-else-if="pod.on && !pod.uid" />
+          <i v-else-if="pod.on && pod.uid" class="status online"></i>
+        </td>
+        <td>
+          <button :disabled="!isRunning || !allowRequest" @click="togglePower(pod)">
+            <fai name="power-off" />
+            {{ pod.on ? 'off' : 'on' }}
+          </button>
+        </td>
+        <td class="center">
+          <span class="pointer" @click="selectPod(pod, 'settings')">
+            <fai name="cog" />
+          </span>
+        </td>
+        <td class="center">
+          <span class="pointer" @click="selectPod(pod, 'test')">
+            <fai name="vial" />
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-    <button class="spaced" @click="showGlobalSettings = true">
-      <fai name="tools" />Global settings
-    </button>
-
-    <div v-if="admin">
-      <h3>Power</h3>
-      <table>
-        <thead>
-          <th>Address</th>
-          <th>Target</th>
-          <th>Last contact</th>
-        </thead>
-        <tbody>
-          <tr v-for="obj in addresses" :key="obj.address">
-            <td>{{ obj.address }}</td>
-            <td>{{ obj.target ? toTitle(obj.target) : 'Pod' }}</td>
-            <td>{{ lastContacts[obj.address] }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </template>
+  <button v-if="admin && isConnected" class="spaced" @click="showGlobalSettings = true">
+    <fai name="tools" />Global settings
+  </button>
 
   <modal v-if="selectedPod && selectedPod.window === 'settings'"
          @close="selectedPod = null" class="pod-modal">
@@ -194,7 +172,6 @@
   <modal v-if="errorMessage" @close="errorMessage = null">
     <p class="error-message">{{ errorMessage }}</p>
   </modal>
-
 </div>
 </template>
 
@@ -211,7 +188,6 @@ export default {
   },
   data() {
     return {
-      admin: false,
       isRunning: null,
       pods: {},
       addresses: [],
@@ -240,11 +216,15 @@ export default {
   computed: {
     ...mapGetters('flo', ['allowRequest']),
     ...mapState('flo', ['runningSequences']),
+    ...mapState(['admin']),
     runningHours() {
       if (this.runningTimeSeconds) {
         return Math.floor(this.runningTimeSeconds / 60 / 60)
       }
       return null
+    },
+    isConnected() {
+      return this.isRunning !== null
     }
   },
   watch: {
@@ -417,7 +397,7 @@ export default {
 header {
   display: flex;
   justify-content: space-between;
-  background: #ddd;
+  background: #eaeaea;
   align-items: center;
   padding: 10px;
   width: calc(100vw - 20px);

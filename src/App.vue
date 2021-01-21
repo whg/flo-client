@@ -1,8 +1,14 @@
 <template>
   <div id="app" @click="clicked">
-    <!-- <div id="nav"> -->
-    <!-- <router-link to="/">Home</router-link> | -->
-    <!-- </div> -->
+    <div v-if="admin" class="admin-header">
+      <span>Admin mode</span>
+      <div>
+        <router-link to="admin">Dashboard</router-link>
+        <router-link to="log">Log</router-link>
+        <router-link to="flo">Flo</router-link>
+        <router-link to="console">Console</router-link>
+      </div>
+    </div>
     <router-view/>
     <footer>
       {{ appVersion }} {{ versions }}
@@ -11,7 +17,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import '@/styles/skeleton.css'
 import '@/styles/main.scss'
 
@@ -22,6 +28,9 @@ export default {
       appVersion: undefined,
       versions: undefined
     }
+  },
+  computed: {
+    ...mapState(['admin'])
   },
   methods: {
     ...mapActions('flo', ['floRequest']),
@@ -80,6 +89,25 @@ body {
       border: none;
       border-bottom: 1px solid #666;
     }
+  }
+}
+
+div.admin-header {
+  background: #555;
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 10px;
+  color: #fff;
+  font-size: 0.8rem;
+
+  span {
+    color: #fff;
+  }
+
+  a {
+    color: #fff;
+    margin-left: 1rem;
+    text-decoration: none;
   }
 }
 

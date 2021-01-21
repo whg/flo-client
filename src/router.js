@@ -1,24 +1,45 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Flo from './views/Flo.vue'
+import Dashboard from './views/Dashboard.vue'
+import store from './store'
 
 Vue.use(VueRouter)
 
+const guards = {
+  onlyAdmin(to, from, next) {
+    if (store.state.admin) {
+      next()
+    } else {
+      next({ name: 'auth', params: { nextPage: to.name } })
+    }
+  }
+}
+
 const routes = [
+  {
+    path: '/auth/:nextPage?',
+    name: 'auth',
+    component: () => import(/* webpackChunkName: "auth" */ './views/Auth.vue'),
+    props: true
+  },
   {
     path: '/console',
     name: 'console',
-    component: () => import(/* webpackChunkName: "console" */ './views/Console.vue')
+    component: () => import(/* webpackChunkName: "console" */ './views/Console.vue'),
+    beforeEnter: guards.onlyAdmin
   },
   {
     path: '/flo',
     name: 'flo',
-    component: Flo
+    component: Flo,
+    beforeEnter: guards.onlyAdmin
   },
   {
     path: '/log',
     name: 'log',
-    component: () => import(/* webpackChunkName: "log" */ './views/Log.vue')
+    component: () => import(/* webpackChunkName: "log" */ './views/Log.vue'),
+    beforeEnter: guards.onlyAdmin
   },
   {
     path: '/tree',
@@ -39,7 +60,13 @@ const routes = [
     path: '/dashboard',
     alias: '/',
     name: 'dashboard',
-    component: () => import(/* webpackChunkName: "dash" */ './views/Dashboard.vue')
+    component: Dashboard
+  },
+  {
+    path: '/admin',
+    name: 'admin-dashboard',
+    component: Dashboard,
+    beforeEnter: guards.onlyAdmin
   },
   {
     path: '/maintain',
