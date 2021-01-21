@@ -2,6 +2,11 @@ import Vue from 'vue'
 import socketio from 'socket.io-client'
 import { camelToKebab, vocabMap, sameRequest, randomID } from '../util'
 
+let addr = '192.168.8.222:3000' // pi on GL.iNet router
+if (location.hash) {
+  addr = location.hash.substr(1)
+}
+
 export const socketPlugin = ((socket) => {
   const prefix = 'flo/socket'
   const prefixRegex = new RegExp(prefix)
@@ -28,7 +33,7 @@ export const socketPlugin = ((socket) => {
   }
 // })(socketio('http://localhost:3000'))
 // })(socketio('http://192.168.8.158:3000')) // Gladys on GL.iNet router
-})(socketio('http://192.168.8.222:3000')) // pi on GL.iNet router
+})(socketio(`http://${addr}`))
 
 export const flo = {
   namespaced: true,
