@@ -83,7 +83,7 @@
       </button>
     </div>
     <table v-if="selectedPod.settings">
-      <tr v-for="setting in selectedPod.settings" :key="setting.param">
+      <tr v-for="setting in editableSettings" :key="setting.param">
         <td>
           {{ settingName(setting) }}
         </td>
@@ -101,6 +101,17 @@
     <div v-else class="no-table">
       <spinner v-if="selectedPod.on"></spinner>
       <span v-else>No Pod</span>
+    </div>
+    <div v-if="admin && selectedPod.settings">
+      <button :class="{ stop: testRequesting === 'sensor' }"
+            @click="togglePodRequest('sensor')">
+        test bubble sensor
+      </button>
+      <span v-if="testRequests.sensor">
+        <fai v-if="testRequests.sensor > currentBubbleThreshold" name="regular/circle" />
+        <fai v-else name="circle" />
+        {{ testRequests.sensor }}
+      </span>
     </div>
     <div v-if="selectedPod.settings" class="end-buttons">
       <button class="warning" @click="revertSettings">
@@ -143,9 +154,11 @@
                   @click="togglePodRequest('sensor')">
             test bubble sensor
           </button>
-          <span>
-            <fai v-if="testRequests.sensor === 'not-over'" name="regular/circle" />
-            <fai v-if="testRequests.sensor === 'over'" name="circle" />
+          <span v-if="testRequests.sensor">
+            <fai v-if="testRequests.sensor > currentBubbleThreshold" name="regular/circle" />
+            <fai v-else name="circle" />
+            {{ testRequests.sensor }}
+            ({{ currentBubbleThreshold }})
           </span>
         </div>
       </div>
@@ -179,7 +192,7 @@
 import { mapState, mapActions, mapGetters } from 'vuex'
 import Spinner from '@/components/util/Spinner.vue'
 import Modal from '@/components/util/Modal.vue'
-import { vocabMap } from '@/vocab'
+import { vocab, vocabMap } from '@/vocab'
 
 export default {
   components: {
@@ -225,6 +238,18 @@ export default {
     },
     isConnected() {
       return this.isRunning !== null
+    },
+    editableSettings() {
+      const output = {}
+      Object.entries(this.selectedPod.settings).forEach(([k, v]) => {
+        if (this.admin || v.param !== vocab.NO_BUBBLE_THRESHOLD) {
+          output[k] = v
+        }
+      })
+      return output
+    },
+    currentBubbleThreshold() {
+      return this.selectedPod.settings[vocab.NO_BUBBLE_THRESHOLD].value
     }
   },
   watch: {
@@ -400,7 +425,6 @@ header {
   background: #eaeaea;
   align-items: center;
   padding: 10px;
-  width: calc(100vw - 20px);
 
   h1 {
     font-size: 1.2rem;
@@ -440,7 +464,6 @@ table {
 
 .pod-modal {
   table {
-    margin-bottom: 30px;
 
     th {
       text-align: left;
@@ -489,9 +512,10 @@ table {
     }
   }
 
-  .button {
+  button {
     &.water {
-      background: #aaf;
+      background: #cbecff;
+
     }
     &.soap {
       background: #ffc;
@@ -514,6 +538,7 @@ table {
   .end-buttons {
     display: flex;
     justify-content: space-between;
+    margin-top: 30px;
   }
 }
 

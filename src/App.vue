@@ -51,7 +51,6 @@ export default {
     this.floRequest('versions').then((versions) => {
       this.versions = versions
     })
-    console.log(process.env)
     this.appVersion = `client: ${process.env.VUE_APP_VERSION}, `
   }
 }
